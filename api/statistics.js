@@ -5,15 +5,21 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method === 'GET') {
     try {
       const { data, error } = await supabase
         .from('statistics')
         .select('*')
         .single();
-
+      
       if (error) throw error;
-
+      
       res.status(200).json({
         success: true,
         data: data
@@ -27,7 +33,7 @@ export default async function handler(req, res) {
   } else if (req.method === 'PUT') {
     try {
       const { currentRobux, operatingHoursStart, operatingHoursEnd } = req.body;
-
+      
       const { data, error } = await supabase
         .from('statistics')
         .update({
@@ -39,9 +45,9 @@ export default async function handler(req, res) {
         .eq('id', 1)
         .select()
         .single();
-
+      
       if (error) throw error;
-
+      
       res.status(200).json({
         success: true,
         data: data
