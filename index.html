@@ -2,10 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Don Digital</title>
-<meta name="description" content="The #1 shop for Roblox products. Instant delivery and direct support.">
+<meta name="description" content="A secure and trusted platform for purchasing digital products. Safe payments, instant delivery, and reliable support to ensure a smooth and protected buying experience.">
+<meta property="og:title" content="Don Digital">
+<meta property="og:description" content="A secure and trusted platform for purchasing digital products. Safe payments, instant delivery, and reliable support you can rely on.">
+<meta property="og:image" content="https://i.ibb.co/Q7kgsVHy/Screenshot-2026-01-31-145451.png">
+<meta property="og:url" content="https://dondigital.vercel.app/">
+<meta property="og:type" content="website">
 <style>
 * {
     margin: 0;
@@ -15,16 +22,47 @@
 
 :root {
     --color-bg: #000000;
-    --color-surface: #0f1419;
-    --color-surface-elevated: #1a1f2e;
-    --color-border: rgba(255, 255, 255, 0.08);
+    --color-surface: rgba(10, 10, 10, 0.95);
+    --color-border: rgba(255, 255, 255, 0.06);
+    --color-border-hover: rgba(255, 255, 255, 0.2);
     --color-text-primary: #ffffff;
-    --color-text-secondary: #8b949e;
-    --color-text-muted: #6e7681;
-    --color-accent: #3b82f6;
-    --color-success: #00d9a5;
-    --color-danger: #ff4444;
-    --color-warning: #ffb800;
+    --color-text-secondary: #b0b0b0;
+    --color-text-muted: #707070;
+    --color-accent: #ffffff;
+    --color-danger: #ff2d55;
+    --color-success: #00ff9f;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
 }
 
 body {
@@ -32,27 +70,31 @@ body {
     background: var(--color-bg);
     color: var(--color-text-primary);
     line-height: 1.6;
+    min-height: 100vh;
     overflow-x: hidden;
-    position: relative;
+    -webkit-font-smoothing: antialiased;
 }
 
-#starfield {
+.bg-gradient {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     pointer-events: none;
     z-index: 0;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
 }
 
-.star {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: white;
-    border-radius: 50%;
-    opacity: 0.8;
+.bg-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
 }
 
 .container {
@@ -60,723 +102,461 @@ body {
     margin: 0 auto;
     padding: 0 2rem;
     position: relative;
-    z-index: 1;
+    z-index: 10;
 }
 
 header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 1.5rem 2rem;
+    justify-content: space-between;
+    padding: 2rem 0;
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--color-border);
+    animation: slideIn 0.6s ease;
+    transition: padding 0.3s ease;
 }
 
-.header-wrapper {
-    background: rgba(5, 5, 5, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 50px;
-    padding: 0.5rem 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+header.scrolled {
+    padding: 1.25rem 0;
 }
 
 .logo {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 700;
-    text-decoration: none;
-    color: var(--color-text-primary);
-    padding-left: 0.25rem;
-}
-
-.logo-icon {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    transition: transform 0.5s;
-}
-
-.logo:hover .logo-icon {
-    transform: scale(1.05);
-}
-
-nav {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 50px;
-    padding: 0.25rem 0.25rem;
-    height: 36px;
-}
-
-.nav-links {
-    display: flex;
-    gap: 0;
-    list-style: none;
-}
-
-.nav-links a {
-    color: rgba(255, 255, 255, 0.5);
-    text-decoration: none;
-    font-size: 0.75rem;
-    transition: color 0.3s;
-    padding: 0.375rem 1rem;
-    border-radius: 50px;
-    font-weight: 500;
-}
-
-.nav-links a:hover {
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.hero {
-    padding: 8rem 0 4rem;
-    text-align: left;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
-}
-
-.hero-content h1 {
-    font-size: 5rem;
-    font-weight: 900;
-    line-height: 1;
-    margin-bottom: 1.5rem;
+    gap: 1rem;
+    font-size: 1.5rem;
+    font-weight: 800;
     letter-spacing: -0.02em;
 }
 
-.hero-content h1 .accent {
-    color: var(--color-success);
+.logo-icon {
+    font-size: 2rem;
+    transition: transform 0.3s ease;
 }
 
-.hero-subtitle {
-    font-size: 1.25rem;
-    color: var(--color-text-secondary);
-    margin-bottom: 2rem;
-    line-height: 1.6;
+.logo:hover .logo-icon {
+    transform: rotate(180deg) scale(1.1);
 }
 
-.hero-subtitle .highlight {
-    color: var(--color-text-primary);
-    font-weight: 600;
+.logo-text {
+    background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 3s ease infinite;
 }
 
-.hero-cta {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.btn {
-    display: inline-block;
-    text-decoration: none;
-    transition: all 0.3s;
-}
-
-.hero-cta .btn {
-    padding: 1rem 2.5rem;
-    font-size: 1rem;
-    border-radius: 50px;
-    background: white;
-    color: black;
+.contact-btn {
+    padding: 0.875rem 2rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background: var(--color-accent);
+    color: var(--color-bg);
     font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
 }
 
-.hero-cta .btn:hover {
+.contact-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
-}
-}
-
-.hero-visual {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 1rem;
-    padding: 2rem;
-    height: 400px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-color: var(--color-border-hover);
 }
 
-.terminal {
-    width: 100%;
-    height: 100%;
-    background: #0d1117;
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    font-family: 'Courier New', monospace;
-    font-size: 0.875rem;
+.hero {
+    padding: 8rem 0 6rem;
+    animation: fadeUp 0.8s ease 0.2s both;
 }
 
-.terminal-header {
-    display: flex;
-    gap: 0.5rem;
+.hero h1 {
+    font-size: 5rem;
+    font-weight: 900;
+    margin-bottom: 2rem;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s ease infinite;
+}
+
+.hero-line {
+    height: 4px;
+    width: 120px;
+    background: linear-gradient(90deg, var(--color-accent) 0%, transparent 100%);
     margin-bottom: 1.5rem;
+    border-radius: 2px;
 }
 
-.terminal-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-.dot-red { background: #ff5f56; }
-.dot-yellow { background: #ffbd2e; }
-.dot-green { background: #27c93f; }
-
-.terminal-line {
-    margin-bottom: 0.5rem;
+.hero p {
+    font-size: 1.25rem;
     color: var(--color-text-secondary);
-}
-
-.terminal-line .prompt {
-    color: var(--color-success);
-}
-
-.live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: rgba(0, 217, 165, 0.1);
-    border: 1px solid rgba(0, 217, 165, 0.3);
-    border-radius: 50px;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--color-success);
-    margin-bottom: 3rem;
-}
-
-.live-dot {
-    width: 8px;
-    height: 8px;
-    background: var(--color-success);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-@keyframes typewriter {
-    from { width: 0; }
-    to { width: 100%; }
-}
-
-@keyframes blink {
-    50% { border-color: transparent; }
-}
-
-.typewriter {
-    overflow: hidden;
-    border-right: 2px solid var(--color-success);
-    white-space: nowrap;
-    animation: typewriter 2s steps(20) 1s forwards, blink 0.75s step-end infinite;
-    width: 0;
+    max-width: 600px;
+    line-height: 1.7;
 }
 
 .section {
     padding: 4rem 0;
+    animation: fadeUp 0.8s ease both;
 }
 
 .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 3rem;
 }
 
 .section-title {
     font-size: 2.5rem;
     font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+    position: relative;
+    display: inline-block;
 }
 
-.section-title .muted {
-    color: var(--color-text-muted);
-    font-weight: 600;
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-accent) 0%, transparent 100%);
 }
 
-.view-all {
+.section-subtitle {
+    font-size: 1.125rem;
     color: var(--color-text-secondary);
-    text-decoration: none;
-    font-size: 0.9375rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: color 0.3s;
 }
 
-.view-all:hover {
-    color: var(--color-text-primary);
-}
-
-.products-grid {
+.grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
     gap: 2rem;
 }
 
-.product-card {
+.stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.packages-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+
+.card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
+    padding: 3rem;
     border-radius: 1rem;
-    padding: 0;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.product-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 200px;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-}
-
-.product-card:hover::before {
-    opacity: 1;
-}
-
-.product-card.out-of-stock {
-    opacity: 0.6;
-}
-
-.product-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-4px);
-}
-
-.product-card-content {
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.product-image {
-    transform: translateY(-4px);
-}
-
-.product-image {
-    width: 100%;
-    height: 180px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-    border-radius: 0.75rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 4rem;
-    position: relative;
-}
-
-.product-image.img-2 {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.product-image.img-3 {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.product-badges {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    right: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.badge-left {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.badge {
-    padding: 0.375rem 0.75rem;
-    border-radius: 0.375rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.product-image::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.15;
-    mix-blend-mode: overlay;
-    pointer-events: none;
-}
-
-.badge-category {
-    background: rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
     backdrop-filter: blur(10px);
-    color: white;
-}
-
-.badge-bestseller {
-    background: white;
-    color: black;
-}
-
-.badge-updated {
-    background: rgba(0, 217, 165, 0.2);
-    border: 1px solid var(--color-success);
-    color: var(--color-success);
-}
-
-.badge-outdated {
-    background: rgba(255, 68, 68, 0.2);
-    border: 1px solid var(--color-danger);
-    color: var(--color-danger);
-}
-
-.badge-stock {
-    background: rgba(0, 217, 165, 0.2);
-    color: var(--color-success);
-    font-size: 0.6875rem;
-}
-
-.product-info {
     position: relative;
 }
 
-.product-header {
-    margin-bottom: 1.5rem;
+.card:hover {
+    border-color: var(--color-border-hover);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 
-.product-name {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-}
-
-.product-features {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+.stat-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     margin-bottom: 2rem;
 }
 
-.feature {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
+.stat-icon {
+    font-size: 2.5rem;
+    transition: transform 0.3s ease;
 }
 
-.feature-icon {
-    color: var(--color-success);
-}
-
-.product-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--color-border);
-    margin-bottom: 1.5rem;
-}
-
-.product-price {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.price-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
-    letter-spacing: 0.05em;
-}
-
-.price {
-    font-size: 2rem;
-    font-weight: 900;
-}
-
-.price .currency {
-    color: var(--color-success);
-}
-
-.price-old {
-    font-size: 0.875rem;
-    color: var(--color-text-muted);
-    text-decoration: line-through;
-}
-
-.product-actions {
-    display: flex;
-    gap: 0.75rem;
-}
-
-.btn-buy {
-    padding: 0.875rem 2rem;
-    background: white;
-    color: black;
-    border-radius: 0.5rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.3s;
-    font-size: 0.875rem;
-}
-
-.btn-buy:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
-}
-
-.btn-buy.disabled {
-    background: var(--color-text-muted);
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.btn-buy {
-    width: 100%;
-    display: block;
-    text-align: center;
-}
-
-.stats-section {
-    padding: 5rem 0;
-    border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
-    background: rgba(255, 255, 255, 0.02);
-    position: relative;
-    overflow: hidden;
-}
-
-.stats-section::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.02), transparent);
-    pointer-events: none;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 3rem;
-    text-align: center;
-    position: relative;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.stat-item {
-    position: relative;
-    transition: all 0.3s;
-}
-
-.stat-item:hover .stat-value {
-    color: var(--color-text-primary);
-}
-
-.stat-item:hover .stat-label {
-    color: var(--color-text-secondary);
-}
-
-.stat-value {
-    font-size: 4rem;
-    font-weight: 900;
-    margin-bottom: 0.5rem;
-    font-family: 'Courier New', monospace;
-    transition: color 0.3s;
-    color: var(--color-text-primary);
+.card:hover .stat-icon {
+    transform: scale(1.1) rotate(10deg);
 }
 
 .stat-label {
+    font-size: 0.75rem;
     text-transform: uppercase;
-    font-size: 0.8125rem;
     letter-spacing: 0.15em;
     color: var(--color-text-muted);
-    font-family: 'Courier New', monospace;
-    font-weight: 400;
-    transition: color 0.3s;
-}
-
-.cta-section {
-    padding: 8rem 0;
-    text-align: center;
-    position: relative;
-}
-
-.cta-section::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(0, 255, 159, 0.05), transparent);
-    border-radius: 50%;
-    animation: pulse 4s ease-in-out infinite;
-    pointer-events: none;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-}
-
-.cta-content {
-    position: relative;
-    z-index: 1;
-}
-
-.cta-content h2 {
-    font-size: 4rem;
-    font-weight: 900;
-    margin-bottom: 2rem;
-    letter-spacing: -0.03em;
-}
-
-.cta-content h2 .muted {
-    color: var(--color-text-muted);
-}
-
-.cta-button-wrapper {
-    position: relative;
-    display: inline-block;
-}
-
-.cta-button-wrapper::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    background: linear-gradient(90deg, rgba(0, 255, 159, 0.3), rgba(0, 255, 159, 0.2), rgba(0, 255, 159, 0.3));
-    border-radius: 50px;
-    blur: 40px;
-    opacity: 0;
-    transition: opacity 0.5s;
-}
-
-.cta-button-wrapper:hover::before {
-    opacity: 1;
-}
-
-.cta-button {
-    padding: 1.25rem 3rem;
-    background: white;
-    color: black;
-    border-radius: 50px;
-    font-size: 1.125rem;
     font-weight: 700;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s;
-    position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.cta-button:hover {
-    transform: translateY(-4px);
-    background: var(--color-success);
-    border-color: var(--color-success);
+.stat-amount {
+    font-size: 3.5rem;
+    font-weight: 900;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-footer {
-    padding: 3rem 0;
+.stat-subtitle {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 2rem;
+}
+
+.stat-hours {
+    margin-top: 2rem;
+    padding-top: 2rem;
     border-top: 1px solid var(--color-border);
-    text-align: center;
 }
 
-.footer-content {
+.hours-label {
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+}
+
+.hours-time {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.package-card {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    position: relative;
+}
+
+.package-card.out-of-stock {
+    opacity: 0.5;
+}
+
+.badge {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    padding: 0.5rem 1rem;
+    color: var(--color-text-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: 0.5rem;
+    z-index: 3;
+}
+
+.badge-popular { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
+.badge-best-value { background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%); }
+.badge-hot-deal { background: linear-gradient(135deg, #ff2d55 0%, #ff0844 100%); }
+.badge-trending { background: linear-gradient(135deg, #00ff9f 0%, #00d17a 100%); }
+.badge-limited { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); }
+.badge-new { background: linear-gradient(135deg, #facc15 0%, #eab308 100%); }
+
+.stock-badge {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-danger);
+    color: var(--color-text-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: 0.5rem;
+    z-index: 3;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.package-header {
+    display: flex;
     align-items: center;
     gap: 1rem;
-    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.package-icon {
+    font-size: 2.5rem;
+    transition: transform 0.3s ease;
+}
+
+.card:hover .package-icon {
+    transform: scale(1.15) rotate(15deg);
+}
+
+.package-tier {
     font-size: 0.75rem;
-    color: var(--color-text-secondary);
-    margin-bottom: 1rem;
-}
-
-.footer-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 50px;
-    transition: colors 0.3s;
-}
-
-.status-dot {
-    position: relative;
-    width: 8px;
-    height: 8px;
-    display: flex;
-}
-
-.status-dot-inner {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: var(--color-success);
-}
-
-.status-dot-blur {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: var(--color-success);
-    opacity: 0.6;
-    filter: blur(2px);
-}
-
-.footer-link {
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.footer-link:hover {
-    color: var(--color-text-primary);
-}
-
-.footer-dev {
-    margin-top: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
     color: var(--color-text-muted);
-    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.package-amount {
+    margin-bottom: 2rem;
+}
+
+.robux-count {
+    font-size: 3rem;
+    font-weight: 900;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.robux-label {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+}
+
+.sales-count {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    transition: all 0.3s ease;
+}
+
+.card:hover .sales-count {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.sales-icon {
+    font-size: 1.125rem;
+}
+
+.sales-number {
+    font-weight: 700;
+    color: var(--color-success);
+}
+
+.package-price {
+    margin-bottom: 2rem;
+    flex-grow: 1;
+}
+
+.price {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.price-label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.order-btn {
+    display: block;
+    width: 100%;
+    padding: 1rem 2rem;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.order-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+}
+
+.order-btn.disabled {
+    background: var(--color-text-muted);
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.info-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 4rem;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.info-card:hover {
+    border-color: var(--color-border-hover);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3rem;
+}
+
+.info-item {
+    transition: transform 0.3s ease;
+}
+
+.info-item:hover {
+    transform: translateX(8px);
+}
+
+.info-item h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+}
+
+.info-item p {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+}
+
+.footer {
+    padding: 3rem 0 4rem;
+    text-align: center;
+    border-top: 1px solid var(--color-border);
+    margin-top: 4rem;
+}
+
+.footer p {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.footer small {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
 }
 
 .loading {
@@ -784,19 +564,11 @@ footer {
     padding: 4rem;
     color: var(--color-text-secondary);
     font-size: 1.125rem;
+    animation: pulse 2s ease-in-out infinite;
 }
 
 @media (max-width: 1024px) {
-    .hero {
-        grid-template-columns: 1fr;
-        gap: 3rem;
-    }
-
-    .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .stats-grid {
+    .packages-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
@@ -806,204 +578,210 @@ footer {
         padding: 0 1.5rem;
     }
 
-    .nav-links {
-        display: none;
+    header {
+        padding: 1.5rem 0;
     }
 
-    .hero-content h1 {
+    .logo {
+        font-size: 1.25rem;
+    }
+
+    .logo-icon {
+        font-size: 1.75rem;
+    }
+
+    .contact-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.8125rem;
+    }
+
+    .hero {
+        padding: 5rem 0 3rem;
+    }
+
+    .hero h1 {
         font-size: 3rem;
     }
+    
+    .hero p {
+        font-size: 1.125rem;
+    }
 
-    .products-grid {
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .stat-amount {
+        font-size: 2.75rem;
+    }
+
+    .card {
+        padding: 2rem;
+    }
+    
+    .stats-grid,
+    .packages-grid {
         grid-template-columns: 1fr;
     }
 
-    .stats-grid {
+    .robux-count {
+        font-size: 2.5rem;
+    }
+
+    .price {
+        font-size: 2rem;
+    }
+    
+    .info-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
     }
+    
+    .info-card {
+        padding: 2.5rem;
+    }
+}
 
-    .cta-content h2 {
-        font-size: 2.5rem;
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2.25rem;
+    }
+
+    .stat-amount {
+        font-size: 2.25rem;
+    }
+
+    .robux-count {
+        font-size: 2rem;
+    }
+
+    .price {
+        font-size: 1.75rem;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .card,
+    .info-card {
+        padding: 1.75rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }
 </style>
 </head>
 <body>
 
-<canvas id="starfield"></canvas>
+<div class="bg-gradient"></div>
+<div class="bg-grid"></div>
 
 <div class="container">
-    <header>
-        <div class="header-wrapper">
-            <a href="#" class="logo">
-                <div class="logo-icon">⏣</div>
-                <span>Don Digital</span>
-            </a>
-            
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="#products">Products</a></li>
-                    <li><a href="#stats">Status</a></li>
-                </ul>
-            </nav>
+    <header id="header">
+        <div class="logo">
+            <span class="logo-icon">⏣</span>
+            <span class="logo-text">Don Digital</span>
         </div>
+        <a href="https://www.facebook.com/profile.php?id=61586923727508" target="_blank" class="contact-btn">Get in Touch</a>
     </header>
 
     <section class="hero">
-        <div class="hero-content">
-            <h1><span class="typewriter">Don Digital</span><span class="accent">.</span></h1>
-            <p class="hero-subtitle">The #1 shop for <span class="highlight">Roblox Products</span>. Fast delivery and dependable support.</p>
-            
-            <div class="hero-cta">
-                <a href="#products" class="btn">Browse Shop</a>
-            </div>
-        </div>
-
-        <div class="hero-visual">
-            <div class="terminal"></div>
-        </div>
+        <h1>Roblox Marketplace</h1>
+        <div class="hero-line"></div>
+        <p>A secure platform for purchasing digital Roblox-related products with fair pricing, fast delivery, and dependable support.</p>
     </section>
 
-    <section class="section" id="products">
-        <div class="live-badge">
-            <span class="live-dot"></span>
-            LIVE MARKET
-        </div>
-        
+    <section class="section">
         <div class="section-header">
-            <h2 class="section-title">Featured <span class="muted">Products</span></h2>
+            <h2 class="section-title">Statistics</h2>
+            <p class="section-subtitle">Real-time data on our platform performance</p>
         </div>
-
-        <div class="products-grid" id="productsContainer">
-            <div class="loading">Loading products...</div>
-        </div>
-    </section>
-
-    <section class="stats-section" id="stats">
-        <div class="stats-grid" id="statsContainer">
+        <div class="grid stats-grid" id="statsContainer">
             <div class="loading">Loading statistics...</div>
         </div>
     </section>
 
-    <section class="cta-section">
-        <div class="cta-content">
-            <h2>Ready to <span class="muted">order?</span></h2>
-            <div class="cta-button-wrapper">
-                <a href="https://www.facebook.com/profile.php?id=61586923727508" target="_blank" class="cta-button">Get Access Now</a>
-            </div>
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">Available Packages</h2>
+            <p class="section-subtitle">Choose the perfect package for your needs</p>
+        </div>
+        <div class="grid packages-grid" id="packagesContainer">
+            <div class="loading">Loading packages...</div>
         </div>
     </section>
 
-    <footer>
-        <div class="footer-content">
-            <span>© 2026 Don Digital</span>
-            <span>•</span>
-            <div class="footer-status">
-                <div class="status-dot">
-                    <span class="status-dot-blur"></span>
-                    <span class="status-dot-inner"></span>
-                </div>
-                <span>operational</span>
-            </div>
-            <span>•</span>
-            <a href="https://www.facebook.com/profile.php?id=61586923727508" target="_blank" class="footer-link">Contact</a>
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">Terms & Conditions</h2>
+            <p class="section-subtitle">Important information about your purchase</p>
         </div>
-        <div class="footer-dev">Developed by Don Digital Team</div>
+        <div class="info-card">
+            <div class="info-grid">
+                <div class="info-item">
+                    <h3>Roblox Platform Tax</h3>
+                    <p>All Robux amounts listed are NET, meaning the platform tax is already covered. If you purchase 10,000 Robux, you will receive the full 10,000 Robux.</p>
+                </div>
+                <div class="info-item">
+                    <h3>Minimum Order</h3>
+                    <p>Custom orders start from a minimum of 100 Robux. Standard packages begin at 1,000 Robux. All amounts shown are net values.</p>
+                </div>
+                <div class="info-item">
+                    <h3>Payment Policy</h3>
+                    <p>All payments are final. Refunds are not available once the transaction is completed. No additional deductions will apply to your order.</p>
+                </div>
+                <div class="info-item">
+                    <h3>Competitive Pricing</h3>
+                    <p>Our rates remain significantly lower than official marketplace pricing, and all amounts are fully delivered with the platform tax covered.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer class="footer">
+        <p>&copy; 2026 Don Digital. All rights reserved.</p>
+        <small>Independently developed and operated.</small>
     </footer>
 </div>
 
 <script>
 const API_URL = '';
 
-function createStarfield() {
-    const canvas = document.getElementById('starfield');
-    const ctx = canvas.getContext('2d');
-    
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    
-    const stars = [];
-    const starCount = 200;
-    
-    for (let i = 0; i < starCount; i++) {
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            radius: Math.random() * 1.5,
-            opacity: Math.random() * 0.8 + 0.2
-        });
-    }
-    
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        stars.forEach(star => {
-            ctx.beginPath();
-            ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
-            ctx.fill();
-        });
-        
-        requestAnimationFrame(animate);
-    }
-    
-    animate();
-    
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    });
-}
-
-function typewriterEffect() {
-    const terminal = document.querySelector('.terminal');
-    const lines = [
-        { text: '<span class="prompt">~</span> ./dondigital', delay: 0 },
-        { text: 'Initializing secure connection...', delay: 800 },
-        { text: '✓ Connected to marketplace', delay: 1600 },
-        { text: '✓ Products loaded', delay: 2200 },
-        { text: '✓ Ready to serve', delay: 2800 }
-    ];
-    
-    terminal.innerHTML = `
-        <div class="terminal-header">
-            <div class="terminal-dot dot-red"></div>
-            <div class="terminal-dot dot-yellow"></div>
-            <div class="terminal-dot dot-green"></div>
-        </div>
-    `;
-    
-    lines.forEach((line, index) => {
-        setTimeout(() => {
-            const lineDiv = document.createElement('div');
-            lineDiv.className = 'terminal-line';
-            lineDiv.style.opacity = '0';
-            terminal.appendChild(lineDiv);
-            
-            let charIndex = 0;
-            const typeInterval = setInterval(() => {
-                if (charIndex === 0) {
-                    lineDiv.style.opacity = '1';
-                }
-                if (charIndex < line.text.length) {
-                    lineDiv.innerHTML = line.text.substring(0, charIndex + 1);
-                    charIndex++;
-                } else {
-                    clearInterval(typeInterval);
-                }
-            }, 30);
-        }, line.delay);
-    });
-}
-
 function getBadgeClass(badgeText) {
     if (!badgeText) return '';
+    
     const text = badgeText.toLowerCase();
-    if (text.includes('popular') || text.includes('seller')) return 'badge-bestseller';
-    if (text.includes('value') || text.includes('deal')) return 'badge-bestseller';
-    return 'badge-bestseller';
+    if (text.includes('popular')) return 'badge-popular';
+    if (text.includes('value')) return 'badge-best-value';
+    if (text.includes('hot') || text.includes('deal')) return 'badge-hot-deal';
+    if (text.includes('trend')) return 'badge-trending';
+    if (text.includes('limited')) return 'badge-limited';
+    if (text.includes('new')) return 'badge-new';
+    return 'badge-popular';
 }
+
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+    const header = document.getElementById('header');
+    const currentScroll = window.pageYOffset;
+    
+    if (currentScroll > 100) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
+    
+    lastScroll = currentScroll;
+}, { passive: true });
 
 async function loadStatistics() {
     try {
@@ -1012,14 +790,21 @@ async function loadStatistics() {
         
         if (result.success) {
             const stats = result.data;
-            document.getElementById('statsContainer').innerHTML = `
-                <div class="stat-item">
-                    <div class="stat-value">${stats.current_robux.toLocaleString()}</div>
-                    <div class="stat-label">Robux Stock</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="productCount">9</div>
-                    <div class="stat-label">Products</div>
+            const statsContainer = document.getElementById('statsContainer');
+            
+            statsContainer.innerHTML = `
+                <div class="card">
+                    <div class="stat-header">
+                        <span class="stat-icon">⏣</span>
+                        <span class="stat-label">LIVE BALANCE</span>
+                    </div>
+                    <div class="stat-amount">${stats.current_robux.toLocaleString()}</div>
+                    <div class="stat-subtitle">Robux available</div>
+                    
+                    <div class="stat-hours">
+                        <div class="hours-label">Operating Hours</div>
+                        <div class="hours-time">${stats.operating_hours_start} - ${stats.operating_hours_end}</div>
+                    </div>
                 </div>
             `;
         }
@@ -1037,83 +822,48 @@ async function loadProducts() {
         
         if (result.success) {
             const products = result.data;
+            const packagesContainer = document.getElementById('packagesContainer');
             
-            document.getElementById('productsContainer').innerHTML = products.map((product, index) => `
-                <div class="product-card ${!product.in_stock ? 'out-of-stock' : ''}">
-                    <div class="product-image img-${(index % 3) + 1}">
-                        <div class="product-badges">
-                            <div class="badge-left">
-                                <span class="badge badge-category">${product.tier}</span>
-                                ${!product.in_stock 
-                                    ? '<span class="badge badge-outdated">Outdated</span>'
-                                    : '<span class="badge badge-updated">Updated</span>'}
-                            </div>
-                            ${product.badge ? `<span class="badge ${getBadgeClass(product.badge)}">${product.badge.split(' ')[0]}</span>` : ''}
-                        </div>
-                        <span style="font-size: 4rem;">${product.icon}</span>
+            packagesContainer.innerHTML = products.map(product => `
+                <div class="card package-card ${!product.in_stock ? 'out-of-stock' : ''}">
+                    ${!product.in_stock 
+                        ? '<div class="stock-badge">OUT OF STOCK</div>' 
+                        : product.badge 
+                            ? `<div class="badge ${getBadgeClass(product.badge)}">${product.badge}</div>`
+                            : ''}
+                    <div class="package-header">
+                        <span class="package-icon">${product.icon}</span>
+                        <span class="package-tier">${product.tier}</span>
                     </div>
-                    
-                    <div class="product-card-content">
-                        <div class="product-info">
-                            <div class="product-header">
-                                <div>
-                                    <h3 class="product-name">${product.tier === 'CUSTOM' ? 'Custom Order' : product.robux_amount.toLocaleString() + ' Robux'}</h3>
-                                </div>
-                            </div>
-                        
-                        <div class="product-features">
-                            ${product.tier === 'CUSTOM' 
-                                ? `
-                                <div class="feature">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Min 100 Robux</span>
-                                </div>
-                                <div class="feature">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Flexible Amount</span>
-                                </div>
-                                `
-                                : `
-                                <div class="feature">
-                                    <span class="feature-icon">✓</span>
-                                    <span>98% NET</span>
-                                </div>
-                                <div class="feature">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Instant Delivery</span>
-                                </div>
-                                `
-                            }
-                        </div>
-                        
-                        <div class="product-footer">
-                            <div class="product-price">
-                                <span class="price-label">Price</span>
-                                <div class="price"><span class="currency">${product.price.substring(0, 1)}</span>${product.price.substring(1)}</div>
-                                ${product.total_sales > 0 ? `<span class="badge badge-stock">${product.total_sales} in stock</span>` : ''}
-                            </div>
-                        </div>
-                        
-                        <a href="https://www.facebook.com/profile.php?id=61586923727508" 
-                           target="_blank" 
-                           class="btn-buy ${!product.in_stock ? 'disabled' : ''}">
-                            ${!product.in_stock ? 'Out of Stock' : 'Buy Now'}
-                        </a>
+                    <div class="package-amount">
+                        <div class="robux-count">${product.robux_amount >= 100 && product.robux_amount < 1000 ? product.robux_amount + '+' : product.robux_amount.toLocaleString()}</div>
+                        <div class="robux-label">${product.robux_amount >= 100 && product.robux_amount < 1000 ? 'Minimum ' + product.robux_amount + ' Robux' : 'Robux'}</div>
                     </div>
+                    ${product.total_sales && product.total_sales > 0 ? `
+                    <div class="sales-count">
+                        <span class="sales-icon">⛟</span>
+                        <span><span class="sales-number">${product.total_sales.toLocaleString()}</span> sold</span>
+                    </div>
+                    ` : ''}
+                    <div class="package-price">
+                        <div class="price">${product.price}</div>
+                        <div class="price-label">${product.price_label}</div>
+                    </div>
+                    <a href="https://www.facebook.com/profile.php?id=61586923727508" 
+                       target="_blank" 
+                       class="order-btn ${!product.in_stock ? 'disabled' : ''}">
+                        ${product.tier === 'CUSTOM' ? 'Request Quote' : (product.in_stock ? 'Place Order' : 'Out of Stock')}
+                    </a>
                 </div>
             `).join('');
-            
-            document.getElementById('productCount').textContent = products.length;
         }
     } catch (error) {
-        document.getElementById('productsContainer').innerHTML = `
-            <div class="loading">Failed to load products</div>
+        document.getElementById('packagesContainer').innerHTML = `
+            <div class="loading">Failed to load packages</div>
         `;
     }
 }
 
-createStarfield();
-typewriterEffect();
 loadStatistics();
 loadProducts();
 
@@ -1124,4 +874,4 @@ setInterval(() => {
 </script>
 
 </body>
-</html>
+</html
