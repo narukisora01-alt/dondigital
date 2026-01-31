@@ -940,6 +940,51 @@ header.scrolled {
     box-shadow: 0 0 20px rgba(255, 45, 85, 0.5);
 }
 
+.badge {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    padding: 0.625rem 1.25rem;
+    color: var(--color-text-primary);
+    font-size: 0.6875rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    border-radius: 0.5rem;
+    z-index: 3;
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.badge-popular {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+}
+
+.badge-best-value {
+    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+
+.badge-hot-deal {
+    background: linear-gradient(135deg, #ff2d55 0%, #ff0844 100%);
+    box-shadow: 0 0 20px rgba(255, 45, 85, 0.5);
+}
+
+.badge-trending {
+    background: linear-gradient(135deg, #00ff9f 0%, #00d17a 100%);
+    box-shadow: 0 0 20px rgba(0, 255, 159, 0.5);
+}
+
+.badge-limited {
+    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+}
+
+.badge-new {
+    background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+}
+
 .package-amount {
     margin-bottom: 2.5rem;
 }
@@ -1511,6 +1556,20 @@ header.scrolled {
 <script>
 const API_URL = '';
 
+// Helper function to get badge class based on badge text
+function getBadgeClass(badgeText) {
+    if (!badgeText) return '';
+    
+    const text = badgeText.toLowerCase();
+    if (text.includes('popular')) return 'badge-popular';
+    if (text.includes('value')) return 'badge-best-value';
+    if (text.includes('hot') || text.includes('deal')) return 'badge-hot-deal';
+    if (text.includes('trend')) return 'badge-trending';
+    if (text.includes('limited')) return 'badge-limited';
+    if (text.includes('new')) return 'badge-new';
+    return 'badge-popular'; // default
+}
+
 // Create floating particles
 function createParticles() {
     const container = document.getElementById('particles');
@@ -1591,7 +1650,11 @@ async function loadProducts() {
             
             packagesContainer.innerHTML = products.map((product, index) => `
                 <div class="package-card ${!product.in_stock ? 'out-of-stock' : ''}" style="animation-delay: ${index * 0.1}s">
-                    ${!product.in_stock ? '<div class="stock-badge">OUT OF STOCK</div>' : ''}
+                    ${!product.in_stock 
+                        ? '<div class="stock-badge">OUT OF STOCK</div>' 
+                        : product.badge 
+                            ? `<div class="badge ${getBadgeClass(product.badge)}">${product.badge}</div>`
+                            : ''}
                     <div class="package-card-inner">
                         <div class="package-header">
                             <div class="package-icon-wrapper">
