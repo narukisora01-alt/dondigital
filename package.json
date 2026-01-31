@@ -2,7 +2,6 @@
   "name": "don-digital",
   "version": "1.0.0",
   "description": "Premium Robux Marketplace",
-  "main": "don.html",
   "scripts": {
     "dev": "vercel dev",
     "vercel-build": "echo 'No build step required'"
