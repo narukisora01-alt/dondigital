@@ -30,7 +30,8 @@ export default async function handler(req, res) {
       const productsWithStock = products.map(product => ({
         ...product,
         in_stock: product.robux_amount <= stats.current_robux,
-        total_sales: product.total_sales || 0
+        total_sales: product.total_sales || 0,
+        badge: product.badge || null // Include badge field
       }));
       
       res.status(200).json({
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'POST') {
     try {
-      const { tier, robuxAmount, price, priceLabel, icon, totalSales } = req.body;
+      const { tier, robuxAmount, price, priceLabel, icon, totalSales, badge } = req.body;
       
       const { data, error } = await supabase
         .from('products')
@@ -58,6 +59,7 @@ export default async function handler(req, res) {
             price_label: priceLabel,
             icon: icon || '⏣',
             total_sales: totalSales || 0,
+            badge: badge || null,
             created_at: new Date().toISOString()
           }
         ])
@@ -78,7 +80,7 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'PUT') {
     try {
-      const { id, tier, robuxAmount, price, priceLabel, icon, totalSales } = req.body;
+      const { id, tier, robuxAmount, price, priceLabel, icon, totalSales, badge } = req.body;
       
       const updateData = {
         tier: tier,
@@ -86,6 +88,7 @@ export default async function handler(req, res) {
         price: price,
         price_label: priceLabel,
         icon: icon,
+        badge: badge || null, // Include badge in updates
         updated_at: new Date().toISOString()
       };
 
