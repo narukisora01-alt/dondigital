@@ -4,9 +4,7 @@
   "description": "Premium Robux Marketplace",
   "main": "don.html",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "vercel build",
-    "deploy": "vercel deploy"
+    "dev": "vercel dev"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.3"
