@@ -1,0 +1,17 @@
+{
+  "name": "don-digital",
+  "version": "1.0.0",
+  "description": "Premium Robux Marketplace",
+  "main": "don.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "deploy": "vercel deploy"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.3"
+  },
+  "devDependencies": {
+    "vercel": "^33.0.1"
+  }
+}
