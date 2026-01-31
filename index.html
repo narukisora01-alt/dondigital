@@ -572,7 +572,7 @@ nav {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 3rem;
     text-align: center;
 }
@@ -744,7 +744,6 @@ footer {
         
         <div class="section-header">
             <h2 class="section-title">Featured <span class="muted">Products</span></h2>
-            <a href="#" class="view-all">View all products →</a>
         </div>
 
         <div class="products-grid" id="productsContainer">
@@ -878,15 +877,7 @@ async function loadStatistics() {
             const stats = result.data;
             document.getElementById('statsContainer').innerHTML = `
                 <div class="stat-item">
-                    <div class="stat-value">4</div>
-                    <div class="stat-label">Active Users</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">2d 12h</div>
-                    <div class="stat-label">Uptime</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${stats.current_robux >= 1000 ? Math.floor(stats.current_robux / 1000) + 'k' : stats.current_robux}</div>
+                    <div class="stat-value">${stats.current_robux.toLocaleString()}</div>
                     <div class="stat-label">Robux Stock</div>
                 </div>
                 <div class="stat-item">
@@ -909,14 +900,13 @@ async function loadProducts() {
         
         if (result.success) {
             const products = result.data;
-            const featured = products.slice(0, 3);
             
-            document.getElementById('productsContainer').innerHTML = featured.map((product, index) => `
+            document.getElementById('productsContainer').innerHTML = products.map((product, index) => `
                 <div class="product-card ${!product.in_stock ? 'out-of-stock' : ''}">
                     <div class="product-image img-${(index % 3) + 1}">
                         <div class="product-badges">
                             <span class="badge badge-category">${product.tier}</span>
-                            <div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
                                 ${product.badge ? `<span class="badge ${getBadgeClass(product.badge)}">${product.badge.split(' ')[0]}</span>` : ''}
                                 ${!product.in_stock 
                                     ? '<span class="badge badge-outdated">Outdated</span>'
