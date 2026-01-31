@@ -29,7 +29,8 @@ export default async function handler(req, res) {
       
       const productsWithStock = products.map(product => ({
         ...product,
-        in_stock: product.robux_amount <= stats.current_robux
+        in_stock: product.robux_amount <= stats.current_robux,
+        total_sales: product.total_sales || 0
       }));
       
       res.status(200).json({
@@ -45,7 +46,7 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'POST') {
     try {
-      const { tier, robuxAmount, price, priceLabel, icon } = req.body;
+      const { tier, robuxAmount, price, priceLabel, icon, totalSales } = req.body;
       
       const { data, error } = await supabase
         .from('products')
@@ -56,6 +57,7 @@ export default async function handler(req, res) {
             price: price,
             price_label: priceLabel,
             icon: icon || '⏣',
+            total_sales: totalSales || 0,
             created_at: new Date().toISOString()
           }
         ])
@@ -76,16 +78,57 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'PUT') {
     try {
-      const { id, tier, robuxAmount, price, priceLabel, icon } = req.body;
+      const { id, tier, robuxAmount, price, priceLabel, icon, totalSales } = req.body;
+      
+      const updateData = {
+        tier: tier,
+        robux_amount: robuxAmount,
+        price: price,
+        price_label: priceLabel,
+        icon: icon,
+        updated_at: new Date().toISOString()
+      };
+
+      // Only update total_sales if it's provided
+      if (totalSales !== undefined) {
+        updateData.total_sales = totalSales;
+      }
+      
+      const { data, error } = await supabase
+        .from('products')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      res.status(200).json({
+        success: true,
+        data: data
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  } else if (req.method === 'PATCH') {
+    // Endpoint specifically for updating total_sales
+    try {
+      const { id, totalSales } = req.body;
+      
+      if (!id || totalSales === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: 'Product ID and totalSales are required'
+        });
+      }
       
       const { data, error } = await supabase
         .from('products')
         .update({
-          tier: tier,
-          robux_amount: robuxAmount,
-          price: price,
-          price_label: priceLabel,
-          icon: icon,
+          total_sales: totalSales,
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
@@ -96,7 +139,8 @@ export default async function handler(req, res) {
       
       res.status(200).json({
         success: true,
-        data: data
+        data: data,
+        message: 'Total sales updated successfully'
       });
     } catch (error) {
       res.status(500).json({
