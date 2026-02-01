@@ -227,6 +227,378 @@ body::after {
     border-top: 1px solid var(--border-light);
 }
 
+.calculator-button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    margin-top: 1rem;
+}
+
+.calculator-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.calculator-button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.calculator-button:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%);
+    border-color: var(--border-medium);
+    transform: translateX(5px);
+}
+
+.calculator-button .nav-icon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calculator-button:hover .nav-icon {
+    transform: scale(1.2) rotate(10deg);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+    transform: rotate(90deg);
+}
+
+.converter-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: var(--bg-secondary);
+    padding: 0.375rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    margin-bottom: 1.5rem;
+}
+
+.converter-tab {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.converter-tab:hover {
+    color: var(--text-primary);
+}
+
+.converter-tab.active {
+    background: linear-gradient(135deg, #ffffff 0%, #e5e5e5 100%);
+    color: var(--bg-primary);
+    box-shadow: 0 2px 8px rgba(255,255,255,0.2);
+}
+
+.converter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.form-input {
+    width: 100%;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1.125rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--border-medium);
+    background: var(--bg-primary);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
+}
+
+.form-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.result-card {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.result-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+
+.result-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: all 0.3s ease;
+}
+
+.rate-info {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.affiliators-list {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.affiliators-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.affiliators-list::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.affiliators-list::-webkit-scrollbar-thumb {
+    background: var(--border-medium);
+    border-radius: 3px;
+}
+
+.affiliators-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+.affiliator-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.affiliator-item:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
+    border-color: var(--border-medium);
+    transform: translateX(4px);
+}
+
+.affiliator-rank {
+    min-width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.affiliator-rank.top-1 {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border-color: #fde68a;
+}
+
+.affiliator-rank.top-2 {
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.affiliator-rank.top-3 {
+    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+    color: #9a3412;
+    border-color: #fdba74;
+}
+
+.affiliator-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    background: #000000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    border: 2px solid var(--border-light);
+}
+
+.affiliator-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.affiliator-username {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.affiliator-earnings {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+.affiliator-robux {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--success);
+    white-space: nowrap;
+}
+
+.affiliators-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-tertiary);
+    font-size: 0.9375rem;
+}
+
 .comments-main-section {
     padding: 4rem 0;
     animation: fadeInUp 0.8s ease both;
@@ -1387,6 +1759,10 @@ body::after {
         height: 36px;
         font-size: 0.8125rem;
     }
+
+    .modal-content {
+        padding: 1.5rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1421,6 +1797,62 @@ button:focus-visible {
 <body>
 
 <div class="overlay" id="overlay"></div>
+
+<!-- Calculator Modal -->
+<div class="modal" id="calculatorModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Currency Calculator</h2>
+            <button class="modal-close" id="closeCalculator">×</button>
+        </div>
+        
+        <div class="converter-tabs">
+            <button class="converter-tab active" data-mode="php-to-robux">PHP to Robux</button>
+            <button class="converter-tab" data-mode="robux-to-php">Robux to PHP</button>
+        </div>
+        
+        <form class="converter-form" id="converterForm">
+            <div class="form-group">
+                <label class="form-label" id="inputLabel">Enter Amount (PHP)</label>
+                <input 
+                    type="number" 
+                    class="form-input" 
+                    id="converterInput" 
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                />
+            </div>
+            
+            <div class="result-card">
+                <div class="result-label" id="resultLabel">Robux Amount</div>
+                <div class="result-value" id="resultValue">0</div>
+            </div>
+            
+            <div class="rate-info">
+                Exchange rates: <strong id="rateDisplay">₱10 = 25 Robux • ₱40 = 100 Robux • ₱120 = 300 Robux</strong>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Affiliators Modal -->
+<div class="modal" id="affiliatorsModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Top Affiliators</h2>
+            <button class="modal-close" id="closeAffiliators">×</button>
+        </div>
+        
+        <div class="affiliators-info" style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%); border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.875rem; color: var(--text-secondary); text-align: center;">
+            Earn <strong style="color: var(--success);">10% Robux commission</strong> on every referral purchase
+        </div>
+        
+        <div class="affiliators-list" id="affiliatorsList">
+            <div class="loading" style="padding: 2rem;">Loading leaderboard...</div>
+        </div>
+    </div>
+</div>
 
 <div class="app-container">
     <aside class="sidebar" id="sidebar">
@@ -1460,6 +1892,17 @@ button:focus-visible {
                 </li>
             </ul>
         </nav>
+
+        <div class="comments-section">
+            <button class="calculator-button" id="calculatorBtn">
+                <span class="nav-icon">⊕</span>
+                <span>Calculator</span>
+            </button>
+            <button class="calculator-button" id="affiliatorsBtn" style="margin-top: 0.5rem;">
+                <span class="nav-icon">★</span>
+                <span>Affiliators</span>
+            </button>
+        </div>
 
         <div class="sidebar-footer">
             <div class="contact-card">
@@ -1589,6 +2032,33 @@ button:focus-visible {
 <script>
 const API_URL = '';
 
+// Price list based on your actual rates
+const PRICE_LIST = [
+    { robux: 25, price: 10 },
+    { robux: 100, price: 40 },
+    { robux: 300, price: 120 },
+    { robux: 750, price: 280 },
+    { robux: 1500, price: 560 },
+    { robux: 3000, price: 1050 },
+    { robux: 5000, price: 1700 }
+];
+
+// Calculate rate for a given amount
+function calculateRate(robux) {
+    // Find the closest package or interpolate
+    for (let i = 0; i < PRICE_LIST.length; i++) {
+        if (robux <= PRICE_LIST[i].robux) {
+            return PRICE_LIST[i].price / PRICE_LIST[i].robux;
+        }
+    }
+    // If above the highest package, use the best rate
+    const bestPackage = PRICE_LIST[PRICE_LIST.length - 1];
+    return bestPackage.price / bestPackage.robux;
+}
+
+// Get average exchange rate
+const AVERAGE_RATE = PRICE_LIST.reduce((sum, pkg) => sum + (pkg.robux / pkg.price), 0) / PRICE_LIST.length;
+
 function getBadgeClass(badgeText) {
     if (!badgeText) return '';
     const text = badgeText.toLowerCase();
@@ -1600,6 +2070,206 @@ function getBadgeClass(badgeText) {
     if (text.includes('new')) return 'badge-new';
     return 'badge-popular';
 }
+
+// Calculator Modal Functionality
+const calculatorBtn = document.getElementById('calculatorBtn');
+const calculatorModal = document.getElementById('calculatorModal');
+const closeCalculator = document.getElementById('closeCalculator');
+const converterTabs = document.querySelectorAll('.converter-tab');
+const converterInput = document.getElementById('converterInput');
+const resultValue = document.getElementById('resultValue');
+const inputLabel = document.getElementById('inputLabel');
+const resultLabel = document.getElementById('resultLabel');
+const rateDisplay = document.getElementById('rateDisplay');
+
+// Affiliators Modal Functionality
+const affiliatorsBtn = document.getElementById('affiliatorsBtn');
+const affiliatorsModal = document.getElementById('affiliatorsModal');
+const closeAffiliators = document.getElementById('closeAffiliators');
+
+let currentMode = 'php-to-robux';
+
+// Open calculator
+calculatorBtn.addEventListener('click', () => {
+    calculatorModal.classList.add('active');
+    converterInput.value = '';
+    resultValue.textContent = '0';
+});
+
+// Close calculator
+closeCalculator.addEventListener('click', () => {
+    calculatorModal.classList.remove('active');
+});
+
+// Close on backdrop click
+calculatorModal.addEventListener('click', (e) => {
+    if (e.target === calculatorModal) {
+        calculatorModal.classList.remove('active');
+    }
+});
+
+// Open affiliators
+affiliatorsBtn.addEventListener('click', () => {
+    affiliatorsModal.classList.add('active');
+    loadAffiliators();
+});
+
+// Close affiliators
+closeAffiliators.addEventListener('click', () => {
+    affiliatorsModal.classList.remove('active');
+});
+
+// Close on backdrop click
+affiliatorsModal.addEventListener('click', (e) => {
+    if (e.target === affiliatorsModal) {
+        affiliatorsModal.classList.remove('active');
+    }
+});
+
+// Load affiliators leaderboard
+async function loadAffiliators() {
+    try {
+        const response = await fetch(`${API_URL}/api/affiliators`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Response is not JSON");
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const affiliators = result.data || [];
+            displayAffiliators(affiliators);
+        } else {
+            throw new Error('API returned success: false');
+        }
+    } catch (error) {
+        document.getElementById('affiliatorsList').innerHTML = `
+            <div class="affiliators-empty">
+                <p style="margin-bottom: 0.5rem;">Unable to load affiliators</p>
+                <p style="font-size: 0.8125rem;">Please try again later</p>
+            </div>
+        `;
+    }
+}
+
+// Display affiliators
+function displayAffiliators(affiliators) {
+    const affiliatorsList = document.getElementById('affiliatorsList');
+    
+    if (affiliators.length === 0) {
+        affiliatorsList.innerHTML = `
+            <div class="affiliators-empty">
+                <p>No affiliators yet</p>
+                <p style="font-size: 0.8125rem; margin-top: 0.5rem;">Be the first to join!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    affiliatorsList.innerHTML = affiliators.map((affiliator, index) => {
+        const rank = index + 1;
+        let rankClass = '';
+        if (rank === 1) rankClass = 'top-1';
+        else if (rank === 2) rankClass = 'top-2';
+        else if (rank === 3) rankClass = 'top-3';
+        
+        return `
+            <div class="affiliator-item" style="animation: fadeInUp 0.4s ease-out backwards; animation-delay: ${index * 0.05}s;">
+                <div class="affiliator-rank ${rankClass}">#${rank}</div>
+                <div class="affiliator-avatar">?</div>
+                <div class="affiliator-info">
+                    <div class="affiliator-username">${escapeHtml(affiliator.username)}</div>
+                    <div class="affiliator-earnings">Commission earned</div>
+                </div>
+                <div class="affiliator-robux">${affiliator.robux_earned.toLocaleString()}R$</div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Switch conversion mode
+converterTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        converterTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentMode = tab.dataset.mode;
+        
+        if (currentMode === 'php-to-robux') {
+            inputLabel.textContent = 'Enter Amount (PHP)';
+            resultLabel.textContent = 'Robux Amount';
+            rateDisplay.textContent = `Rates: ₱10 = 25 Robux • ₱40 = 100 Robux • ₱120 = 300 Robux`;
+        } else {
+            inputLabel.textContent = 'Enter Amount (Robux)';
+            resultLabel.textContent = 'PHP Amount';
+            rateDisplay.textContent = `Rates: 25 Robux = ₱10 • 100 Robux = ₱40 • 300 Robux = ₱120`;
+        }
+        
+        converterInput.value = '';
+        resultValue.textContent = '0';
+    });
+});
+
+// Calculate conversion
+converterInput.addEventListener('input', () => {
+    const value = parseFloat(converterInput.value) || 0;
+    let result;
+    
+    if (currentMode === 'php-to-robux') {
+        // PHP to Robux - find the best matching package
+        result = 0;
+        for (let pkg of PRICE_LIST) {
+            if (value >= pkg.price) {
+                const packages = Math.floor(value / pkg.price);
+                const remainder = value % pkg.price;
+                result = packages * pkg.robux;
+                
+                // Calculate remainder robux using the same rate
+                if (remainder > 0) {
+                    result += Math.floor(remainder * (pkg.robux / pkg.price));
+                }
+            }
+        }
+        
+        // If amount is less than minimum package
+        if (value > 0 && value < PRICE_LIST[0].price) {
+            const rate = PRICE_LIST[0].robux / PRICE_LIST[0].price;
+            result = Math.floor(value * rate);
+        }
+        
+        resultValue.textContent = result.toLocaleString();
+    } else {
+        // Robux to PHP - find the best matching package
+        result = 0;
+        for (let i = PRICE_LIST.length - 1; i >= 0; i--) {
+            const pkg = PRICE_LIST[i];
+            if (value >= pkg.robux) {
+                const packages = Math.floor(value / pkg.robux);
+                const remainder = value % pkg.robux;
+                result = packages * pkg.price;
+                
+                // Calculate remainder PHP using the same rate
+                if (remainder > 0) {
+                    result += (remainder / pkg.robux) * pkg.price;
+                }
+                break;
+            }
+        }
+        
+        // If amount is less than minimum package
+        if (value > 0 && value < PRICE_LIST[0].robux) {
+            const rate = PRICE_LIST[0].price / PRICE_LIST[0].robux;
+            result = value * rate;
+        }
+        
+        resultValue.textContent = `₱${result.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+});
 
 // Mobile menu functionality
 const menuToggle = document.getElementById('menuToggle');
@@ -1690,7 +2360,6 @@ async function loadStatistics() {
             `;
         }
     } catch (error) {
-        console.error('Statistics error:', error);
         document.getElementById('statsContainer').innerHTML = `
             <div class="stat-card">
                 <div class="stat-header">
@@ -1764,7 +2433,6 @@ async function loadProducts() {
             `).join('');
         }
     } catch (error) {
-        console.error('Products error:', error);
         document.getElementById('productsContainer').innerHTML = `
             <div class="loading">
                 <p style="margin-bottom: 1rem;">Unable to load products at this time.</p>
@@ -1810,7 +2478,6 @@ async function loadComments() {
             throw new Error('API returned success: false');
         }
     } catch (error) {
-        console.error('Comments load error:', error);
         // Don't show error to user, just show empty state
         allComments = [];
         displayComments();
@@ -1970,7 +2637,6 @@ document.getElementById('commentForm').addEventListener('submit', async (e) => {
             errorDiv.textContent = result.error || 'Failed to post comment';
         }
     } catch (error) {
-        console.error('Error posting comment:', error);
         if (error.message.includes('not JSON')) {
             errorDiv.textContent = 'Comments feature is currently unavailable. Please contact us directly.';
         } else {
