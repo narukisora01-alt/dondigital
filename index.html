@@ -2359,33 +2359,35 @@ async function validateReferralCode(refCode) {
     }
 }
 
-// Check if URL has referral code
 async function checkReferralCode() {
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
     
     if (refCode) {
-        const sessionConfirmed = sessionStorage.getItem('referralConfirmed');
         const sessionDeclined = sessionStorage.getItem('referralDeclined');
-        
-        if (sessionConfirmed === refCode) {
-            currentReferralCode = refCode;
-            referralConfirmed = true;
-            return;
-        }
         
         if (sessionDeclined === 'true') {
             return;
         }
         
-        // Validate the referral code
         const isValid = await validateReferralCode(refCode);
         
         if (!isValid) {
-            // Invalid code - reset to original site
+            sessionStorage.removeItem('referralConfirmed');
+            currentReferralCode = null;
+            referralConfirmed = false;
+            
             const url = new URL(window.location);
             url.searchParams.delete('ref');
             window.location.href = url.toString();
+            return;
+        }
+        
+        const sessionConfirmed = sessionStorage.getItem('referralConfirmed');
+        
+        if (sessionConfirmed === refCode) {
+            currentReferralCode = refCode;
+            referralConfirmed = true;
             return;
         }
         
@@ -2394,9 +2396,19 @@ async function checkReferralCode() {
         document.getElementById('referralModal').classList.add('active');
         
         trackReferralClick(refCode);
+    } else {
+        const sessionConfirmed = sessionStorage.getItem('referralConfirmed');
+        if (sessionConfirmed) {
+            const isValid = await validateReferralCode(sessionConfirmed);
+            if (!isValid) {
+                sessionStorage.removeItem('referralConfirmed');
+                currentReferralCode = null;
+                referralConfirmed = false;
+            }
+        }
     }
 }
-
+    
 // Track click only (not conversion - you add conversion manually in SQL)
 async function trackReferralClick(refCode) {
     try {
