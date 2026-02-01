@@ -1850,6 +1850,27 @@ button:focus-visible {
 </head>
 <body>
 
+<!-- Referral Modal -->
+<div class="referral-modal" id="referralModal">
+    <div class="referral-content">
+        <div class="referral-icon">🎁</div>
+        <h2 class="referral-title">Affiliate Invitation!</h2>
+        <p class="referral-message">
+            An affiliate seems to have invited you to purchase in this shop.<br>
+            Referral Code: <span class="referral-code" id="referralCodeDisplay"></span><br><br>
+            Is this correct?
+        </p>
+        <div class="referral-buttons">
+            <button class="referral-btn referral-btn-yes" id="confirmReferral">
+                ✓ Yes, Continue
+            </button>
+            <button class="referral-btn referral-btn-no" id="declineReferral">
+                ✗ No, Thanks
+            </button>
+        </div>
+    </div>
+</div>
+    
 <!-- Calculator Modal -->
 <div class="modal" id="calculatorModal">
     <div class="modal-content">
@@ -2082,7 +2103,96 @@ button:focus-visible {
 </div>
 
 <script>
-const API_URL = '';
+const API_URL = ''; // Replace with your Vercel API URL
+
+// ==========================================
+// REFERRAL SYSTEM - MANUAL TRACKING
+// ==========================================
+let currentReferralCode = null;
+let referralConfirmed = false;
+
+// Check if URL has referral code
+function checkReferralCode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    
+    if (refCode) {
+        const sessionConfirmed = sessionStorage.getItem('referralConfirmed');
+        const sessionDeclined = sessionStorage.getItem('referralDeclined');
+        
+        if (sessionConfirmed === refCode) {
+            currentReferralCode = refCode;
+            referralConfirmed = true;
+            return;
+        }
+        
+        if (sessionDeclined === 'true') {
+            return;
+        }
+        
+        currentReferralCode = refCode;
+        document.getElementById('referralCodeDisplay').textContent = refCode;
+        document.getElementById('referralModal').classList.add('active');
+        
+        trackReferralClick(refCode);
+    }
+}
+
+// Track click only (not conversion - you add conversion manually in SQL)
+async function trackReferralClick(refCode) {
+    try {
+        await fetch(`${API_URL}/api/referrals/track-click`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ referralCode: refCode })
+        });
+    } catch (error) {
+        console.error('Failed to track click:', error);
+    }
+}
+
+// User confirms referral
+document.getElementById('confirmReferral').addEventListener('click', () => {
+    referralConfirmed = true;
+    sessionStorage.setItem('referralConfirmed', currentReferralCode);
+    sessionStorage.removeItem('referralDeclined');
+    document.getElementById('referralModal').classList.remove('active');
+});
+
+// User declines referral
+document.getElementById('declineReferral').addEventListener('click', () => {
+    sessionStorage.setItem('referralDeclined', 'true');
+    sessionStorage.removeItem('referralConfirmed');
+    currentReferralCode = null;
+    referralConfirmed = false;
+    const url = new URL(window.location);
+    url.searchParams.delete('ref');
+    window.history.replaceState({}, '', url);
+    document.getElementById('referralModal').classList.remove('active');
+});
+
+// Handle product order
+function orderProduct(robux, price, outOfStock) {
+    if (outOfStock) return;
+    
+    let message = `Hello po! I want to purchase:\n\nRobux: ${robux.toLocaleString()}R$\nPrice: ${price}\n`;
+    
+    if (referralConfirmed && currentReferralCode) {
+        message += `\n📌 Referral Code: ${currentReferralCode}\n(Please record for commission)\n`;
+    }
+    
+    message += `\nThank you!`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://m.me/61586923727508?text=${encodedMessage}`, '_blank');
+}
+
+// Initialize on page load
+checkReferralCode();
+
+// ==========================================
+// EXISTING CODE BELOW
+// ==========================================
 
 // Price list based on your actual rates
 const PRICE_LIST = [
@@ -2094,22 +2204,6 @@ const PRICE_LIST = [
     { robux: 3000, price: 1050 },
     { robux: 5000, price: 1700 }
 ];
-
-// Calculate rate for a given amount
-function calculateRate(robux) {
-    // Find the closest package or interpolate
-    for (let i = 0; i < PRICE_LIST.length; i++) {
-        if (robux <= PRICE_LIST[i].robux) {
-            return PRICE_LIST[i].price / PRICE_LIST[i].robux;
-        }
-    }
-    // If above the highest package, use the best rate
-    const bestPackage = PRICE_LIST[PRICE_LIST.length - 1];
-    return bestPackage.price / bestPackage.robux;
-}
-
-// Get average exchange rate
-const AVERAGE_RATE = PRICE_LIST.reduce((sum, pkg) => sum + (pkg.robux / pkg.price), 0) / PRICE_LIST.length;
 
 function getBadgeClass(badgeText) {
     if (!badgeText) return '';
@@ -2146,7 +2240,6 @@ calculatorBtn.addEventListener('click', () => {
     calculatorModal.classList.add('active');
     converterInput.value = '';
     resultValue.textContent = '0';
-    // Close sidebar on mobile
     if (window.innerWidth <= 768) {
         closeSidebar();
     }
@@ -2157,7 +2250,6 @@ closeCalculator.addEventListener('click', () => {
     calculatorModal.classList.remove('active');
 });
 
-// Close on backdrop click
 calculatorModal.addEventListener('click', (e) => {
     if (e.target === calculatorModal) {
         calculatorModal.classList.remove('active');
@@ -2168,7 +2260,6 @@ calculatorModal.addEventListener('click', (e) => {
 affiliatorsBtn.addEventListener('click', () => {
     affiliatorsModal.classList.add('active');
     loadAffiliators();
-    // Close sidebar on mobile
     if (window.innerWidth <= 768) {
         closeSidebar();
     }
@@ -2179,7 +2270,6 @@ closeAffiliators.addEventListener('click', () => {
     affiliatorsModal.classList.remove('active');
 });
 
-// Close on backdrop click
 affiliatorsModal.addEventListener('click', (e) => {
     if (e.target === affiliatorsModal) {
         affiliatorsModal.classList.remove('active');
@@ -2189,7 +2279,7 @@ affiliatorsModal.addEventListener('click', (e) => {
 // Load affiliators leaderboard
 async function loadAffiliators() {
     try {
-        const response = await fetch(`${API_URL}/api/affiliators`);
+        const response = await fetch(`${API_URL}/api/affiliators?view=leaderboard&limit=20`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -2281,7 +2371,6 @@ converterInput.addEventListener('input', () => {
     let result;
     
     if (currentMode === 'php-to-robux') {
-        // PHP to Robux - find the best matching package
         result = 0;
         for (let pkg of PRICE_LIST) {
             if (value >= pkg.price) {
@@ -2289,14 +2378,12 @@ converterInput.addEventListener('input', () => {
                 const remainder = value % pkg.price;
                 result = packages * pkg.robux;
                 
-                // Calculate remainder robux using the same rate
                 if (remainder > 0) {
                     result += Math.floor(remainder * (pkg.robux / pkg.price));
                 }
             }
         }
         
-        // If amount is less than minimum package
         if (value > 0 && value < PRICE_LIST[0].price) {
             const rate = PRICE_LIST[0].robux / PRICE_LIST[0].price;
             result = Math.floor(value * rate);
@@ -2304,7 +2391,6 @@ converterInput.addEventListener('input', () => {
         
         resultValue.textContent = result.toLocaleString();
     } else {
-        // Robux to PHP - find the best matching package
         result = 0;
         for (let i = PRICE_LIST.length - 1; i >= 0; i--) {
             const pkg = PRICE_LIST[i];
@@ -2313,7 +2399,6 @@ converterInput.addEventListener('input', () => {
                 const remainder = value % pkg.robux;
                 result = packages * pkg.price;
                 
-                // Calculate remainder PHP using the same rate
                 if (remainder > 0) {
                     result += (remainder / pkg.robux) * pkg.price;
                 }
@@ -2321,7 +2406,6 @@ converterInput.addEventListener('input', () => {
             }
         }
         
-        // If amount is less than minimum package
         if (value > 0 && value < PRICE_LIST[0].robux) {
             const rate = PRICE_LIST[0].price / PRICE_LIST[0].robux;
             result = value * rate;
@@ -2331,7 +2415,7 @@ converterInput.addEventListener('input', () => {
     }
 });
 
-// Mobile menu functionality - NO OVERLAY
+// Mobile menu functionality
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 
@@ -2351,7 +2435,6 @@ menuToggle.addEventListener('click', () => {
     }
 });
 
-// Close sidebar when clicking outside on mobile
 document.addEventListener('click', (e) => {
     if (window.innerWidth <= 768) {
         if (!sidebar.contains(e.target) && !menuToggle.contains(e.target) && sidebar.classList.contains('active')) {
@@ -2369,21 +2452,17 @@ document.querySelectorAll('.nav-link').forEach(link => {
         const targetElement = document.getElementById(targetId);
         
         if (targetElement) {
-            // Update active state
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             link.classList.add('active');
             
-            // Calculate scroll position
             const topbarHeight = document.querySelector('.topbar').offsetHeight;
             const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - topbarHeight - 20;
             
-            // Scroll to section
             window.scrollTo({
                 top: targetPosition,
                 behavior: 'smooth'
             });
             
-            // Close sidebar on mobile
             if (window.innerWidth <= 768) {
                 setTimeout(closeSidebar, 300);
             }
@@ -2395,7 +2474,6 @@ async function loadStatistics() {
     try {
         const response = await fetch(`${API_URL}/api/statistics`);
         
-        // Check if response is ok and is JSON
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -2442,7 +2520,6 @@ async function loadProducts() {
     try {
         const response = await fetch(`${API_URL}/api/products`);
         
-        // Check if response is ok and is JSON
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -2487,11 +2564,11 @@ async function loadProducts() {
                         </div>
                     </div>
                     <div class="product-footer">
-                        <a href="https://www.facebook.com/profile.php?id=61586923727508" 
-                           target="_blank" 
-                           class="order-button ${!product.in_stock ? 'disabled' : ''}">
+                        <button class="order-button ${!product.in_stock ? 'disabled' : ''}"
+                                onclick="orderProduct(${product.robux_amount}, '${product.price}', ${!product.in_stock})"
+                                ${!product.in_stock ? 'disabled' : ''}>
                             ${product.tier === 'CUSTOM' ? 'Request Quote' : (product.in_stock ? 'Order Now' : 'Out of Stock')}
-                        </a>
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -2523,7 +2600,6 @@ async function loadComments() {
     try {
         const response = await fetch(`${API_URL}/api/comments`);
         
-        // Check if response is ok and is JSON
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -2542,7 +2618,6 @@ async function loadComments() {
             throw new Error('API returned success: false');
         }
     } catch (error) {
-        // Don't show error to user, just show empty state
         allComments = [];
         displayComments();
     }
@@ -2674,7 +2749,6 @@ document.getElementById('commentForm').addEventListener('submit', async (e) => {
             })
         });
         
-        // Check if response is ok and is JSON
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
