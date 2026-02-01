@@ -2014,6 +2014,22 @@ button:focus-visible {
         </div>
     </div>
 </div>
+
+<!-- Copy Message Notification -->
+<div class="copy-notification" id="copyNotification">
+    <div class="copy-content">
+        <div class="copy-icon">📋</div>
+        <h3 class="copy-title">Copy This Message</h3>
+        <div class="copy-message-box" id="copyMessageBox">
+            <!-- Message will be inserted here -->
+        </div>
+        <div class="copy-buttons">
+            <button class="copy-btn copy-btn-copied" id="copiedBtn">
+                ✓ Copied
+            </button>
+        </div>
+    </div>
+</div>
     
 <!-- Calculator Modal -->
 <div class="modal" id="calculatorModal">
@@ -2096,12 +2112,6 @@ button:focus-visible {
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#comments" class="nav-link" data-section="comments">
-                        <span class="nav-icon">◇</span>
-                        <span>Comments</span>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a href="#terms" class="nav-link" data-section="terms">
                         <span class="nav-icon">◈</span>
                         <span>Terms</span>
@@ -2167,50 +2177,6 @@ button:focus-visible {
                 </div>
             </section>
 
-            <section id="comments" class="comments-main-section">
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">Comments</h2>
-                        <p class="section-description">Customer reviews and feedback</p>
-                    </div>
-                </div>
-
-                <div class="comments-container">
-                    <div class="comments-form-wrapper">
-                        <form class="comment-form-main" id="commentForm">
-                            <textarea 
-                                class="comment-input-main" 
-                                id="commentInput"
-                                placeholder="Share your experience..."
-                                maxlength="50"
-                                required
-                            ></textarea>
-                            <div class="comment-form-footer">
-                                <span class="comment-counter" id="commentCounter">0/50</span>
-                                <button type="submit" class="comment-submit-main" id="commentSubmit">
-                                    Post Comment
-                                </button>
-                            </div>
-                            <div class="comment-error" id="commentError"></div>
-                        </form>
-                    </div>
-
-                    <div class="comments-list-main" id="commentsList">
-                        <div class="comment-empty">No comments yet. Be the first to share your experience!</div>
-                    </div>
-
-                    <div class="comments-pagination" id="commentsPagination" style="display: none;">
-                        <button class="pagination-btn pagination-prev" id="prevPage" disabled>
-                            ← Previous
-                        </button>
-                        <div class="pagination-numbers" id="paginationNumbers"></div>
-                        <button class="pagination-btn pagination-next" id="nextPage">
-                            Next →
-                        </button>
-                    </div>
-                </div>
-            </section>
-
             <section class="terms-section" id="terms">
                 <div class="section-header">
                     <div>
@@ -2250,13 +2216,25 @@ button:focus-visible {
 const API_URL = 'https://dondigital.vercel.app'; // Replace with your Vercel API URL
 
 // ==========================================
-// REFERRAL SYSTEM - MANUAL TRACKING
+// REFERRAL SYSTEM - VALIDATION & RESET
 // ==========================================
 let currentReferralCode = null;
 let referralConfirmed = false;
 
+// Check if referral code is valid
+async function validateReferralCode(refCode) {
+    try {
+        const response = await fetch(`${API_URL}/api/referrals/validate?code=${refCode}`);
+        const result = await response.json();
+        return result.success && result.valid;
+    } catch (error) {
+        console.error('Failed to validate referral code:', error);
+        return false;
+    }
+}
+
 // Check if URL has referral code
-function checkReferralCode() {
+async function checkReferralCode() {
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
     
@@ -2271,6 +2249,17 @@ function checkReferralCode() {
         }
         
         if (sessionDeclined === 'true') {
+            return;
+        }
+        
+        // Validate the referral code
+        const isValid = await validateReferralCode(refCode);
+        
+        if (!isValid) {
+            // Invalid code - reset to original site
+            const url = new URL(window.location);
+            url.searchParams.delete('ref');
+            window.location.href = url.toString();
             return;
         }
         
@@ -2315,7 +2304,7 @@ document.getElementById('declineReferral').addEventListener('click', () => {
     document.getElementById('referralModal').classList.remove('active');
 });
 
-// Handle product order
+// Handle product order - Show copy notification
 function orderProduct(robux, price, outOfStock) {
     if (outOfStock) return;
     
@@ -2327,9 +2316,36 @@ function orderProduct(robux, price, outOfStock) {
     
     message += `\nThank you!`;
     
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://www.messenger.com/e2ee/t/1596331694906146/?text=${encodedMessage}`, '_blank');
+    // Show copy notification
+    showCopyNotification(message);
 }
+
+// Show copy notification
+function showCopyNotification(message) {
+    const copyNotification = document.getElementById('copyNotification');
+    const copyMessageBox = document.getElementById('copyMessageBox');
+    
+    copyMessageBox.textContent = message;
+    copyNotification.classList.add('active');
+    
+    // Auto copy to clipboard
+    navigator.clipboard.writeText(message).catch(err => {
+        console.error('Failed to copy:', err);
+    });
+}
+
+// Close copy notification and redirect
+document.getElementById('copiedBtn').addEventListener('click', () => {
+    document.getElementById('copyNotification').classList.remove('active');
+    window.open('https://www.facebook.com/profile.php?id=61586923727508', '_blank');
+});
+
+// Close notification when clicking outside
+document.getElementById('copyNotification').addEventListener('click', (e) => {
+    if (e.target.id === 'copyNotification') {
+        document.getElementById('copyNotification').classList.remove('active');
+    }
+});
 
 // Initialize on page load
 checkReferralCode();
@@ -2727,6 +2743,12 @@ async function loadProducts() {
     }
 }
 
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 loadStatistics();
 loadProducts();
 
@@ -2734,206 +2756,6 @@ setInterval(() => {
     loadStatistics();
     loadProducts();
 }, 30000);
-
-// Comments functionality
-let allComments = [];
-let currentPage = 1;
-const commentsPerPage = 3;
-
-async function loadComments() {
-    try {
-        const response = await fetch(`${API_URL}/api/comments`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            throw new Error("Response is not JSON");
-        }
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            allComments = result.data || [];
-            displayComments();
-        } else {
-            throw new Error('API returned success: false');
-        }
-    } catch (error) {
-        allComments = [];
-        displayComments();
-    }
-}
-
-function displayComments() {
-    const commentsList = document.getElementById('commentsList');
-    const pagination = document.getElementById('commentsPagination');
-    
-    if (allComments.length === 0) {
-        commentsList.innerHTML = '<div class="comment-empty">No comments yet. Be the first to share your experience!</div>';
-        pagination.style.display = 'none';
-        return;
-    }
-    
-    const totalPages = Math.ceil(allComments.length / commentsPerPage);
-    const startIndex = (currentPage - 1) * commentsPerPage;
-    const endIndex = startIndex + commentsPerPage;
-    const commentsToShow = allComments.slice(startIndex, endIndex);
-    
-    commentsList.innerHTML = commentsToShow.map((comment, index) => `
-        <div class="comment-item" style="animation-delay: ${index * 0.05}s;">
-            <div class="comment-avatar">?</div>
-            <div class="comment-content">
-                <div class="comment-author">Anonymous</div>
-                <div class="comment-text">${escapeHtml(comment.comment_text)}</div>
-            </div>
-        </div>
-    `).join('');
-    
-    if (totalPages > 1) {
-        pagination.style.display = 'flex';
-        renderPagination(totalPages);
-    } else {
-        pagination.style.display = 'none';
-    }
-}
-
-function renderPagination(totalPages) {
-    const paginationNumbers = document.getElementById('paginationNumbers');
-    const prevBtn = document.getElementById('prevPage');
-    const nextBtn = document.getElementById('nextPage');
-    
-    let numbersHTML = '';
-    for (let i = 1; i <= totalPages; i++) {
-        numbersHTML += `<button class="pagination-number ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
-    }
-    paginationNumbers.innerHTML = numbersHTML;
-    
-    prevBtn.disabled = currentPage === 1;
-    nextBtn.disabled = currentPage === totalPages;
-    
-    document.querySelectorAll('.pagination-number').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentPage = parseInt(btn.dataset.page);
-            displayComments();
-        });
-    });
-}
-
-document.getElementById('prevPage').addEventListener('click', () => {
-    if (currentPage > 1) {
-        currentPage--;
-        displayComments();
-    }
-});
-
-document.getElementById('nextPage').addEventListener('click', () => {
-    const totalPages = Math.ceil(allComments.length / commentsPerPage);
-    if (currentPage < totalPages) {
-        currentPage++;
-        displayComments();
-    }
-});
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-const commentInput = document.getElementById('commentInput');
-const commentCounter = document.getElementById('commentCounter');
-
-commentInput.addEventListener('input', () => {
-    const length = commentInput.value.length;
-    commentCounter.textContent = `${length}/50`;
-    
-    if (length > 180) {
-        commentCounter.style.color = 'var(--danger)';
-    } else if (length > 150) {
-        commentCounter.style.color = 'var(--warning)';
-    } else {
-        commentCounter.style.color = 'var(--text-tertiary)';
-    }
-});
-
-document.getElementById('commentForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const input = document.getElementById('commentInput');
-    const submitBtn = document.getElementById('commentSubmit');
-    const errorDiv = document.getElementById('commentError');
-    const commentText = input.value.trim();
-    
-    if (!commentText) return;
-    
-    errorDiv.textContent = '';
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Posting...';
-    
-    try {
-        const hasCommented = localStorage.getItem('hasCommented');
-        
-        if (hasCommented) {
-            errorDiv.textContent = 'You can only post one comment. Your previous comment is already visible.';
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Post Comment';
-            return;
-        }
-        
-        const response = await fetch(`${API_URL}/api/comments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                commentText: commentText
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            throw new Error("Response is not JSON - API may not be configured");
-        }
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            localStorage.setItem('hasCommented', 'true');
-            input.value = '';
-            commentCounter.textContent = '0/50';
-            commentCounter.style.color = 'var(--text-tertiary)';
-            currentPage = 1;
-            loadComments();
-            submitBtn.textContent = 'Posted!';
-            setTimeout(() => {
-                submitBtn.textContent = 'Post Comment';
-            }, 2000);
-        } else {
-            errorDiv.textContent = result.error || 'Failed to post comment';
-        }
-    } catch (error) {
-        if (error.message.includes('not JSON')) {
-            errorDiv.textContent = 'Comments feature is currently unavailable. Please contact us directly.';
-        } else {
-            errorDiv.textContent = 'Failed to post comment. Please try again or contact us directly.';
-        }
-    } finally {
-        submitBtn.disabled = false;
-        if (submitBtn.textContent === 'Posting...') {
-            submitBtn.textContent = 'Post Comment';
-        }
-    }
-});
-
-loadComments();
-setInterval(loadComments, 15000);
 </script>
 
 </body>
