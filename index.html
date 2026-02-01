@@ -285,7 +285,7 @@ body::after {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.8);
-    z-index: 1000;
+    z-index: 102;
     align-items: center;
     justify-content: center;
     padding: 1rem;
@@ -2094,6 +2094,10 @@ calculatorBtn.addEventListener('click', () => {
     calculatorModal.classList.add('active');
     converterInput.value = '';
     resultValue.textContent = '0';
+    // Close sidebar on mobile
+    if (window.innerWidth <= 768) {
+        closeSidebar();
+    }
 });
 
 // Close calculator
@@ -2112,6 +2116,10 @@ calculatorModal.addEventListener('click', (e) => {
 affiliatorsBtn.addEventListener('click', () => {
     affiliatorsModal.classList.add('active');
     loadAffiliators();
+    // Close sidebar on mobile
+    if (window.innerWidth <= 768) {
+        closeSidebar();
+    }
 });
 
 // Close affiliators
