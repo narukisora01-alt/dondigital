@@ -2247,7 +2247,7 @@ button:focus-visible {
 </div>
 
 <script>
-const API_URL = ''; // Replace with your Vercel API URL
+const API_URL = 'https://dondigital.vercel.app'; // Replace with your Vercel API URL
 
 // ==========================================
 // REFERRAL SYSTEM - MANUAL TRACKING
@@ -2423,7 +2423,7 @@ affiliatorsModal.addEventListener('click', (e) => {
 // Load affiliators leaderboard
 async function loadAffiliators() {
     try {
-        const response = await fetch(`${API_URL}/api/affiliators?view=leaderboard&limit=20`);
+        const response = await fetch(`${API_URL}/api/affiliators-updated?view=leaderboard&limit=20`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
