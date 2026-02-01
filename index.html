@@ -93,9 +93,10 @@ body::after {
     position: fixed;
     height: 100vh;
     overflow-y: auto;
-    z-index: 100;
+    z-index: 101;
     transition: transform var(--transition);
     animation: slideInLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
 }
 
 .sidebar::before {
@@ -107,6 +108,7 @@ body::after {
     height: 100%;
     background: linear-gradient(180deg, transparent, rgba(255,255,255,0.1), transparent);
     animation: shimmer 3s infinite;
+    pointer-events: none;
 }
 
 .sidebar-header {
@@ -588,6 +590,9 @@ body::after {
     cursor: pointer;
     padding: 0.5rem;
     color: var(--text-primary);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
 }
 
 .page-title {
@@ -1306,7 +1311,7 @@ body::after {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.5);
-    z-index: 95;
+    z-index: 99;
 }
 
 .overlay.active {
@@ -1423,7 +1428,7 @@ button:focus-visible {
                 <div class="brand-icon">⏣</div>
                 <div class="brand-name">Don Digital</div>
             </div>
-            <div class="brand-tagline">Roblox Products</div>
+            <div class="brand-tagline">A secure platform for purchasing digital Roblox-related products with fair pricing, fast delivery, and dependable support</div>
         </div>
 
         <nav>
@@ -1516,11 +1521,11 @@ button:focus-visible {
                                 class="comment-input-main" 
                                 id="commentInput"
                                 placeholder="Share your experience..."
-                                maxlength="50"
+                                maxlength="20"
                                 required
                             ></textarea>
                             <div class="comment-form-footer">
-                                <span class="comment-counter" id="commentCounter">0/50</span>
+                                <span class="comment-counter" id="commentCounter">0/20</span>
                                 <button type="submit" class="comment-submit-main" id="commentSubmit">
                                     Post Comment
                                 </button>
@@ -1795,7 +1800,7 @@ const commentCounter = document.getElementById('commentCounter');
 
 commentInput.addEventListener('input', () => {
     const length = commentInput.value.length;
-    commentCounter.textContent = `${length}/50`;
+    commentCounter.textContent = `${length}/20`;
     
     if (length > 180) {
         commentCounter.style.color = 'var(--danger)';
@@ -1845,7 +1850,7 @@ document.getElementById('commentForm').addEventListener('submit', async (e) => {
         if (result.success) {
             localStorage.setItem('hasCommented', 'true');
             input.value = '';
-            commentCounter.textContent = '0/50';
+            commentCounter.textContent = '0/20';
             commentCounter.style.color = 'var(--text-tertiary)';
             currentPage = 1;
             loadComments();
