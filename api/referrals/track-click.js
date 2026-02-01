@@ -5,6 +5,11 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
+  // CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
@@ -18,7 +23,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { referralCode, robuxAmount, priceAmount } = req.body;
+    const { referralCode } = req.body;
     
     // Validate input
     if (!referralCode || referralCode.trim().length === 0) {
@@ -28,80 +33,53 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!robuxAmount || robuxAmount <= 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'Valid Robux amount is required'
-      });
-    }
-
-    if (!priceAmount || priceAmount <= 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'Valid price amount is required'
-      });
-    }
-
-    // Get IP address
-    const ipAddress = req.headers['x-forwarded-for'] || 
-                      req.headers['x-real-ip'] || 
-                      req.connection.remoteAddress || 
-                      'unknown';
-    
-    // Get affiliator by referral code
+    // Check if referral code exists and is active
     const { data: affiliator, error: affiliatorError } = await supabase
       .from('affiliators')
-      .select('id, referral_code, username')
+      .select('referral_code, username')
       .eq('referral_code', referralCode.trim())
-      .eq('is_active', true)
       .single();
     
     if (affiliatorError || !affiliator) {
       return res.status(404).json({
         success: false,
-        error: 'Invalid or inactive referral code'
+        error: 'Invalid referral code'
       });
     }
-    
-    // Calculate 10% commission in Robux
-    const commissionRate = 10.00;
-    const commissionRobux = robuxAmount * (commissionRate / 100);
-    
-    // Insert conversion record (trigger will auto-update total_conversions and total_robux_earned)
-    const { data: conversion, error: conversionError } = await supabase
-      .from('referral_conversions')
+
+    // Insert click record (conversion will be added manually in SQL)
+    const { error: clickError } = await supabase
+      .from('referral_clicks')
       .insert({
-        affiliator_id: affiliator.id,
         referral_code: referralCode.trim(),
-        robux_amount: robuxAmount,
-        price_php: priceAmount,
-        commission_robux: commissionRobux,
-        commission_rate: commissionRate,
-        ip_address: ipAddress
-      })
-      .select()
-      .single();
+        converted: false,
+        clicked_at: new Date().toISOString()
+      });
     
-    if (conversionError) {
-      console.error('Conversion tracking error:', conversionError);
-      return res.status(500).json({
-        success: false,
-        error: 'Failed to track conversion'
+    if (clickError) {
+      console.error('Click tracking error:', clickError);
+      // Don't fail silently - but also don't expose error details
+      return res.status(200).json({
+        success: true,
+        message: 'Click recorded'
       });
     }
-    
+
+    // Increment total_clicks in affiliators table
+    await supabase
+      .from('affiliators')
+      .update({
+        total_clicks: supabase.raw('total_clicks + 1')
+      })
+      .eq('referral_code', referralCode.trim());
+
     res.status(200).json({
       success: true,
-      data: {
-        message: 'Conversion tracked successfully',
-        affiliator: affiliator.username,
-        commission_robux: commissionRobux,
-        commission_rate: commissionRate
-      }
+      message: 'Click tracked successfully'
     });
     
   } catch (error) {
-    console.error('Track conversion error:', error);
+    console.error('Track click error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
