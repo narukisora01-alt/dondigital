@@ -173,6 +173,9 @@ body::after {
     font-weight: 500;
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
 }
 
 .nav-link::before {
@@ -291,6 +294,8 @@ body::after {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .comment-submit-main::before {
@@ -302,6 +307,7 @@ body::after {
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
     transition: left 0.6s;
+    pointer-events: none;
 }
 
 .comment-submit-main:hover::before {
@@ -398,6 +404,87 @@ body::after {
     border-radius: 12px;
 }
 
+.comments-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+}
+
+.pagination-btn {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%);
+    border-color: var(--border-medium);
+    transform: translateY(-2px);
+}
+
+.pagination-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.pagination-numbers {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.pagination-number {
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.pagination-number:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%);
+    border-color: var(--border-medium);
+    transform: scale(1.1);
+}
+
+.pagination-number:active {
+    transform: scale(1);
+}
+
+.pagination-number.active {
+    background: linear-gradient(135deg, #ffffff 0%, #e5e5e5 100%);
+    color: var(--bg-primary);
+    border-color: transparent;
+}
+
 .comments-header {
     display: none;
 }
@@ -441,6 +528,8 @@ body::after {
     transition: all var(--transition);
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .contact-button::before {
@@ -452,6 +541,7 @@ body::after {
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
     transition: left 0.5s;
+    pointer-events: none;
 }
 
 .contact-button:hover::before {
@@ -706,8 +796,7 @@ body::after {
 }
 
 .stat-card:hover .stat-value {
-    transform: scale(1.05);
-    text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    filter: brightness(1.2);
 }
 
 .stat-description {
@@ -779,6 +868,8 @@ body::after {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .filter-tab::before {
@@ -980,8 +1071,7 @@ body::after {
 }
 
 .product-card:hover .amount-value {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+    filter: brightness(1.2);
 }
 
 .amount-label {
@@ -1045,8 +1135,7 @@ body::after {
 }
 
 .product-card:hover .price-value {
-    transform: scale(1.05);
-    filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
+    filter: brightness(1.2);
 }
 
 .price-label {
@@ -1074,6 +1163,8 @@ body::after {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .order-button::before {
@@ -1085,6 +1176,7 @@ body::after {
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
     transition: left 0.6s;
+    pointer-events: none;
 }
 
 .order-button::after {
@@ -1267,6 +1359,23 @@ body::after {
     .filter-tabs {
         overflow-x: auto;
     }
+
+    .comments-pagination {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .pagination-btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    .pagination-number {
+        min-width: 36px;
+        height: 36px;
+        font-size: 0.8125rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1315,19 +1424,19 @@ button:focus-visible {
         <nav>
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="#stats" class="nav-link active">
+                    <a href="#products" class="nav-link active">
                         <span class="nav-icon">◆</span>
                         <span>Products</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#stats" class="nav-link">
+                    <a href="#statistics" class="nav-link">
                         <span class="nav-icon">◈</span>
                         <span>Statistics</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#comments" class="nav-link" id="commentsNavLink">
+                    <a href="#comments" class="nav-link">
                         <span class="nav-icon">◇</span>
                         <span>Comments</span>
                     </a>
@@ -1363,7 +1472,7 @@ button:focus-visible {
         </div>
 
         <div class="content-wrapper">
-            <section class="stats-section">
+            <section class="stats-section" id="statistics">
                 <div class="section-header">
                     <div>
                         <h2 class="section-title">Live Statistics</h2>
@@ -1375,16 +1484,11 @@ button:focus-visible {
                 </div>
             </section>
 
-            <section>
+            <section id="products">
                 <div class="section-header">
                     <div>
                         <h2 class="section-title">Available Products</h2>
                         <p class="section-description">Browse our product catalog</p>
-                    </div>
-                    <div class="filter-tabs">
-                        <button class="filter-tab active">All</button>
-                        <button class="filter-tab">Popular</button>
-                        <button class="filter-tab">In Stock</button>
                     </div>
                 </div>
                 <div class="products-grid" id="productsContainer">
@@ -1407,11 +1511,11 @@ button:focus-visible {
                                 class="comment-input-main" 
                                 id="commentInput"
                                 placeholder="Share your experience..."
-                                maxlength="200"
+                                maxlength="50"
                                 required
                             ></textarea>
                             <div class="comment-form-footer">
-                                <span class="comment-counter" id="commentCounter">0/200</span>
+                                <span class="comment-counter" id="commentCounter">0/50</span>
                                 <button type="submit" class="comment-submit-main" id="commentSubmit">
                                     Post Comment
                                 </button>
@@ -1422,6 +1526,16 @@ button:focus-visible {
 
                     <div class="comments-list-main" id="commentsList">
                         <div class="comment-empty">No comments yet. Be the first to share your experience!</div>
+                    </div>
+
+                    <div class="comments-pagination" id="commentsPagination" style="display: none;">
+                        <button class="pagination-btn pagination-prev" id="prevPage" disabled>
+                            ← Previous
+                        </button>
+                        <div class="pagination-numbers" id="paginationNumbers"></div>
+                        <button class="pagination-btn pagination-next" id="nextPage">
+                            Next →
+                        </button>
                     </div>
                 </div>
             </section>
@@ -1576,29 +1690,94 @@ setInterval(() => {
     loadProducts();
 }, 30000);
 
+let allComments = [];
+let currentPage = 1;
+const commentsPerPage = 3;
+
 async function loadComments() {
     try {
         const response = await fetch(`${API_URL}/api/comments`);
         const result = await response.json();
         
-        if (result.success && result.data.length > 0) {
-            const commentsList = document.getElementById('commentsList');
-            commentsList.innerHTML = result.data.map((comment, index) => `
-                <div class="comment-item" style="animation-delay: ${index * 0.05}s;">
-                    <div class="comment-avatar">?</div>
-                    <div class="comment-content">
-                        <div class="comment-author">Anonymous</div>
-                        <div class="comment-text">${escapeHtml(comment.comment_text)}</div>
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            document.getElementById('commentsList').innerHTML = '<div class="comment-empty">No comments yet. Be the first to share your experience!</div>';
+        if (result.success) {
+            allComments = result.data || [];
+            displayComments();
         }
     } catch (error) {
         console.error('Failed to load comments:', error);
+        document.getElementById('commentsList').innerHTML = '<div class="comment-empty">Failed to load comments</div>';
     }
 }
+
+function displayComments() {
+    const commentsList = document.getElementById('commentsList');
+    const pagination = document.getElementById('commentsPagination');
+    
+    if (allComments.length === 0) {
+        commentsList.innerHTML = '<div class="comment-empty">No comments yet. Be the first to share your experience!</div>';
+        pagination.style.display = 'none';
+        return;
+    }
+    
+    const totalPages = Math.ceil(allComments.length / commentsPerPage);
+    const startIndex = (currentPage - 1) * commentsPerPage;
+    const endIndex = startIndex + commentsPerPage;
+    const commentsToShow = allComments.slice(startIndex, endIndex);
+    
+    commentsList.innerHTML = commentsToShow.map((comment, index) => `
+        <div class="comment-item" style="animation-delay: ${index * 0.05}s;">
+            <div class="comment-avatar">?</div>
+            <div class="comment-content">
+                <div class="comment-author">Anonymous</div>
+                <div class="comment-text">${escapeHtml(comment.comment_text)}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    if (totalPages > 1) {
+        pagination.style.display = 'flex';
+        renderPagination(totalPages);
+    } else {
+        pagination.style.display = 'none';
+    }
+}
+
+function renderPagination(totalPages) {
+    const paginationNumbers = document.getElementById('paginationNumbers');
+    const prevBtn = document.getElementById('prevPage');
+    const nextBtn = document.getElementById('nextPage');
+    
+    let numbersHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+        numbersHTML += `<button class="pagination-number ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+    paginationNumbers.innerHTML = numbersHTML;
+    
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
+    
+    document.querySelectorAll('.pagination-number').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentPage = parseInt(btn.dataset.page);
+            displayComments();
+        });
+    });
+}
+
+document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        displayComments();
+    }
+});
+
+document.getElementById('nextPage').addEventListener('click', () => {
+    const totalPages = Math.ceil(allComments.length / commentsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        displayComments();
+    }
+});
 
 function escapeHtml(text) {
     const div = document.createElement('div');
@@ -1611,7 +1790,7 @@ const commentCounter = document.getElementById('commentCounter');
 
 commentInput.addEventListener('input', () => {
     const length = commentInput.value.length;
-    commentCounter.textContent = `${length}/200`;
+    commentCounter.textContent = `${length}/50`;
     
     if (length > 180) {
         commentCounter.style.color = 'var(--danger)';
@@ -1661,8 +1840,9 @@ document.getElementById('commentForm').addEventListener('submit', async (e) => {
         if (result.success) {
             localStorage.setItem('hasCommented', 'true');
             input.value = '';
-            commentCounter.textContent = '0/200';
+            commentCounter.textContent = '0/50';
             commentCounter.style.color = 'var(--text-tertiary)';
+            currentPage = 1;
             loadComments();
             submitBtn.textContent = 'Posted!';
             setTimeout(() => {
@@ -1690,9 +1870,17 @@ document.querySelectorAll('.nav-link').forEach(link => {
         const href = link.getAttribute('href');
         if (href && href.startsWith('#')) {
             e.preventDefault();
-            const target = document.querySelector(href);
+            const targetId = href.substring(1);
+            const target = document.getElementById(targetId);
+            
             if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const topbarHeight = document.querySelector('.topbar').offsetHeight;
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - topbarHeight - 20;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
                 
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
