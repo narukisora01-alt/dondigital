@@ -1676,20 +1676,7 @@ body::after {
     color: var(--text-secondary);
     font-size: 0.9375rem;
 }
-
-.overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 1000;
-    transition: opacity 0.3s ease;
-}
-
-.overlay.active {
-    display: block;
-}
-
+    
 @media (max-width: 1024px) {
     .products-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1792,11 +1779,76 @@ button:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
+
+/* Print Support */
+@media print {
+    @page {
+        margin: 1.5cm;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    body::before,
+    body::after {
+        display: none !important;
+    }
+    
+    .sidebar,
+    .topbar,
+    .menu-toggle,
+    .calculator-button,
+    .modal,
+    .comment-form-main,
+    .comments-pagination,
+    .order-button,
+    .contact-button,
+    .status-badge {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+    }
+    
+    .content-wrapper {
+        padding: 0 !important;
+    }
+    
+    .product-card,
+    .stat-card,
+    .comment-item,
+    .terms-section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+    
+    .products-grid,
+    .stats-grid {
+        display: block !important;
+    }
+    
+    .product-card,
+    .stat-card {
+        margin-bottom: 1rem !important;
+    }
+    
+    a {
+        text-decoration: underline !important;
+    }
+    
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+    }
+}
 </style>
 </head>
 <body>
-
-<div class="overlay" id="overlay"></div>
 
 <!-- Calculator Modal -->
 <div class="modal" id="calculatorModal">
@@ -2279,19 +2331,16 @@ converterInput.addEventListener('input', () => {
     }
 });
 
-// Mobile menu functionality
+// Mobile menu functionality - NO OVERLAY
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
 
 function closeSidebar() {
     sidebar.classList.remove('active');
-    overlay.classList.remove('active');
 }
 
 function openSidebar() {
     sidebar.classList.add('active');
-    overlay.classList.add('active');
 }
 
 menuToggle.addEventListener('click', () => {
@@ -2302,8 +2351,15 @@ menuToggle.addEventListener('click', () => {
     }
 });
 
-overlay.addEventListener('click', closeSidebar);
-
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 768) {
+        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target) && sidebar.classList.contains('active')) {
+            closeSidebar();
+        }
+    }
+});
+    
 // Navigation functionality
 document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', (e) => {
