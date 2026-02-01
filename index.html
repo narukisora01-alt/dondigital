@@ -96,7 +96,6 @@ body::after {
     z-index: 101;
     transition: transform var(--transition);
     animation: slideInLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: auto;
 }
 
 .sidebar::before {
@@ -1310,8 +1309,10 @@ body::after {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 99;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    transition: opacity 0.3s ease;
 }
 
 .overlay.active {
@@ -1327,6 +1328,7 @@ body::after {
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
+        box-shadow: 2px 0 20px rgba(0,0,0,0.5);
     }
 
     .sidebar.active {
@@ -1434,25 +1436,25 @@ button:focus-visible {
         <nav>
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="#products" class="nav-link active">
+                    <a href="#products" class="nav-link active" data-section="products">
                         <span class="nav-icon">◆</span>
                         <span>Products</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#statistics" class="nav-link">
+                    <a href="#statistics" class="nav-link" data-section="statistics">
                         <span class="nav-icon">◈</span>
                         <span>Statistics</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#comments" class="nav-link">
+                    <a href="#comments" class="nav-link" data-section="comments">
                         <span class="nav-icon">◇</span>
                         <span>Comments</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#terms" class="nav-link">
+                    <a href="#terms" class="nav-link" data-section="terms">
                         <span class="nav-icon">◈</span>
                         <span>Terms</span>
                     </a>
@@ -1471,7 +1473,7 @@ button:focus-visible {
 
     <main class="main-content">
         <div class="topbar">
-            <button class="menu-toggle" id="menuToggle">☰</button>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
             <h1 class="page-title">Marketplace</h1>
             <div class="topbar-actions">
                 <div class="status-badge">
@@ -1521,11 +1523,11 @@ button:focus-visible {
                                 class="comment-input-main" 
                                 id="commentInput"
                                 placeholder="Share your experience..."
-                                maxlength="20"
+                                maxlength="50"
                                 required
                             ></textarea>
                             <div class="comment-form-footer">
-                                <span class="comment-counter" id="commentCounter">0/20</span>
+                                <span class="comment-counter" id="commentCounter">0/50</span>
                                 <button type="submit" class="comment-submit-main" id="commentSubmit">
                                     Post Comment
                                 </button>
@@ -1600,23 +1602,76 @@ function getBadgeClass(badgeText) {
     return 'badge-popular';
 }
 
+// Mobile menu functionality
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
 
-menuToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('active');
-    overlay.classList.toggle('active');
-});
-
-overlay.addEventListener('click', () => {
+function closeSidebar() {
     sidebar.classList.remove('active');
     overlay.classList.remove('active');
+}
+
+function openSidebar() {
+    sidebar.classList.add('active');
+    overlay.classList.add('active');
+}
+
+menuToggle.addEventListener('click', () => {
+    if (sidebar.classList.contains('active')) {
+        closeSidebar();
+    } else {
+        openSidebar();
+    }
+});
+
+overlay.addEventListener('click', closeSidebar);
+
+// Navigation functionality
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const targetId = link.getAttribute('data-section');
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+            // Update active state
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            
+            // Calculate scroll position
+            const topbarHeight = document.querySelector('.topbar').offsetHeight;
+            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - topbarHeight - 20;
+            
+            // Scroll to section
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+            
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                setTimeout(closeSidebar, 300);
+            }
+        }
+    });
 });
 
 async function loadStatistics() {
     try {
         const response = await fetch(`${API_URL}/api/statistics`);
+        
+        // Check if response is ok and is JSON
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Response is not JSON");
+        }
+        
         const result = await response.json();
         
         if (result.success) {
@@ -1636,13 +1691,35 @@ async function loadStatistics() {
             `;
         }
     } catch (error) {
-        document.getElementById('statsContainer').innerHTML = `<div class="loading">Failed to load statistics</div>`;
+        console.error('Statistics error:', error);
+        document.getElementById('statsContainer').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Available Balance</span>
+                    <div class="stat-icon">◆</div>
+                </div>
+                <div class="stat-value">Loading...</div>
+                <div class="stat-description">Connecting to server</div>
+                <div class="stat-footer">Please check back shortly</div>
+            </div>
+        `;
     }
 }
 
 async function loadProducts() {
     try {
         const response = await fetch(`${API_URL}/api/products`);
+        
+        // Check if response is ok and is JSON
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Response is not JSON");
+        }
+        
         const result = await response.json();
         
         if (result.success) {
@@ -1688,7 +1765,13 @@ async function loadProducts() {
             `).join('');
         }
     } catch (error) {
-        document.getElementById('productsContainer').innerHTML = `<div class="loading">Failed to load products</div>`;
+        console.error('Products error:', error);
+        document.getElementById('productsContainer').innerHTML = `
+            <div class="loading">
+                <p style="margin-bottom: 1rem;">Unable to load products at this time.</p>
+                <p style="font-size: 0.875rem; color: var(--text-tertiary);">Please contact us directly for available packages.</p>
+            </div>
+        `;
     }
 }
 
@@ -1700,6 +1783,7 @@ setInterval(() => {
     loadProducts();
 }, 30000);
 
+// Comments functionality
 let allComments = [];
 let currentPage = 1;
 const commentsPerPage = 3;
@@ -1707,15 +1791,30 @@ const commentsPerPage = 3;
 async function loadComments() {
     try {
         const response = await fetch(`${API_URL}/api/comments`);
+        
+        // Check if response is ok and is JSON
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Response is not JSON");
+        }
+        
         const result = await response.json();
         
         if (result.success) {
             allComments = result.data || [];
             displayComments();
+        } else {
+            throw new Error('API returned success: false');
         }
     } catch (error) {
-        console.error('Failed to load comments:', error);
-        document.getElementById('commentsList').innerHTML = '<div class="comment-empty">Failed to load comments</div>';
+        console.error('Comments load error:', error);
+        // Don't show error to user, just show empty state
+        allComments = [];
+        displayComments();
     }
 }
 
@@ -1800,7 +1899,7 @@ const commentCounter = document.getElementById('commentCounter');
 
 commentInput.addEventListener('input', () => {
     const length = commentInput.value.length;
-    commentCounter.textContent = `${length}/20`;
+    commentCounter.textContent = `${length}/50`;
     
     if (length > 180) {
         commentCounter.style.color = 'var(--danger)';
@@ -1845,12 +1944,22 @@ document.getElementById('commentForm').addEventListener('submit', async (e) => {
             })
         });
         
+        // Check if response is ok and is JSON
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Response is not JSON - API may not be configured");
+        }
+        
         const result = await response.json();
         
         if (result.success) {
             localStorage.setItem('hasCommented', 'true');
             input.value = '';
-            commentCounter.textContent = '0/20';
+            commentCounter.textContent = '0/50';
             commentCounter.style.color = 'var(--text-tertiary)';
             currentPage = 1;
             loadComments();
@@ -1862,8 +1971,12 @@ document.getElementById('commentForm').addEventListener('submit', async (e) => {
             errorDiv.textContent = result.error || 'Failed to post comment';
         }
     } catch (error) {
-        errorDiv.textContent = 'Failed to post comment. Please try again.';
         console.error('Error posting comment:', error);
+        if (error.message.includes('not JSON')) {
+            errorDiv.textContent = 'Comments feature is currently unavailable. Please contact us directly.';
+        } else {
+            errorDiv.textContent = 'Failed to post comment. Please try again or contact us directly.';
+        }
     } finally {
         submitBtn.disabled = false;
         if (submitBtn.textContent === 'Posting...') {
@@ -1874,35 +1987,6 @@ document.getElementById('commentForm').addEventListener('submit', async (e) => {
 
 loadComments();
 setInterval(loadComments, 15000);
-
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-        const href = link.getAttribute('href');
-        if (href && href.startsWith('#')) {
-            e.preventDefault();
-            const targetId = href.substring(1);
-            const target = document.getElementById(targetId);
-            
-            if (target) {
-                const topbarHeight = document.querySelector('.topbar').offsetHeight;
-                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - topbarHeight - 20;
-                
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-                
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                }
-            }
-        }
-    });
-});
 </script>
 
 </body>
