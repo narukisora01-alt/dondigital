@@ -38,16 +38,37 @@ export default async function handler(req, res) {
       .eq('referral_code', code.trim())
       .single();
     
-    if (error || !affiliator) {
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(200).json({
+          success: true,
+          valid: false,
+          reason: 'Referral code not found'
+        });
+      }
+      throw error;
+    }
+    
+    if (!affiliator) {
       return res.status(200).json({
         success: true,
-        valid: false
+        valid: false,
+        reason: 'Referral code not found'
+      });
+    }
+    
+    if (affiliator.is_active === false) {
+      return res.status(200).json({
+        success: true,
+        valid: false,
+        reason: 'Referral code is inactive'
       });
     }
     
     res.status(200).json({
       success: true,
-      valid: affiliator.is_active !== false
+      valid: true,
+      username: affiliator.username
     });
     
   } catch (error) {
