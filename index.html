@@ -2367,30 +2367,49 @@ async function checkReferralCode() {
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
 
-    // Reset state every load
-    currentReferralCode = null;
-    referralConfirmed = false;
+    if (refCode) {
+        const sessionDeclined = sessionStorage.getItem('referralDeclined');
+        if (sessionDeclined === 'true') {
+            return;
+        }
 
-    if (!refCode) return;
+        const isValid = await validateReferralCode(refCode);
+        if (!isValid) {
+            sessionStorage.removeItem('referralConfirmed');
+            currentReferralCode = null;
+            referralConfirmed = false;
 
-    const isValid = await validateReferralCode(refCode);
+            const url = new URL(window.location);
+            url.searchParams.delete('ref');
+            window.location.href = url.toString();
+            return;
+        }
 
-    if (!isValid) {
-        const url = new URL(window.location);
-        url.searchParams.delete('ref');
-        window.location.href = url.toString();
-        return;
+        const sessionConfirmed = sessionStorage.getItem('referralConfirmed');
+        if (sessionConfirmed === refCode) {
+            currentReferralCode = refCode;
+            referralConfirmed = true;
+            return;
+        }
+
+        currentReferralCode = refCode;
+        document.getElementById('referralCodeDisplay').textContent = refCode;
+        document.getElementById('referralModal').classList.add('active');
+        trackReferralClick(refCode);
+
+    } else {
+        const sessionConfirmed = sessionStorage.getItem('referralConfirmed');
+        if (sessionConfirmed) {
+            const isValid = await validateReferralCode(sessionConfirmed);
+            if (!isValid) {
+                sessionStorage.removeItem('referralConfirmed');
+                currentReferralCode = null;
+                referralConfirmed = false;
+            }
+        }
     }
-
-    currentReferralCode = refCode;
-    referralConfirmed = true;
-
-    document.getElementById('referralCodeDisplay').textContent = refCode;
-    document.getElementById('referralModal').classList.add('active');
-
-    trackReferralClick(refCode);
 }
-
+    
 // Track click only (not conversion - you add conversion manually in SQL)
 async function trackReferralClick(refCode) {
     try {
