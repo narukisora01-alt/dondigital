@@ -2443,40 +2443,45 @@ document.getElementById('declineReferral').addEventListener('click', () => {
     document.getElementById('referralModal').classList.remove('active');
 });
 
-// Handle product order - Show copy notification
-function orderProduct(robux, price, outOfStock) {
+async function orderProduct(robux, price, outOfStock) {
     if (outOfStock) return;
     
-    let message = `Hello po! I want to purchase:\n\nRobux: ${robux.toLocaleString()}R$\nPrice: ${price}\n`;
+    const message = `Hello po! I want to purchase:\n\nRobux: ${robux.toLocaleString()}R$\nPrice: ${price}\n\nThank you!`;
+    
+    let fbLink = 'https://www.facebook.com/profile.php?id=61586923727508'; // Default shop owner
     
     if (referralConfirmed && currentReferralCode) {
-        message += `\n📌 Referral Code: ${currentReferralCode}\n(Please record for commission)\n`;
+        try {
+            const response = await fetch(`${API_URL}/api/referrals/get-facebook?code=${currentReferralCode}`);
+            const result = await response.json();
+            if (result.success && result.facebook_profile) {
+                fbLink = result.facebook_profile;
+            }
+        } catch (error) {
+            console.error('Failed to get affiliator FB:', error);
+        }
     }
     
-    message += `\nKindly remove the referral if you don't want it or if there are any issues with the affiliator.\n\nThank you!`;
-    
-    showCopyNotification(message);
+    showCopyNotification(message, fbLink);
 }
-
-// Show copy notification
-function showCopyNotification(message) {
+    
+function showCopyNotification(message, fbLink) {
     const copyNotification = document.getElementById('copyNotification');
     const copyMessageBox = document.getElementById('copyMessageBox');
+    const copiedBtn = document.getElementById('copiedBtn');
     
     copyMessageBox.textContent = message;
     copyNotification.classList.add('active');
     
-    // Auto copy to clipboard
+    copiedBtn.onclick = () => {
+        copyNotification.classList.remove('active');
+        window.open(fbLink, '_blank');
+    };
+    
     navigator.clipboard.writeText(message).catch(err => {
         console.error('Failed to copy:', err);
     });
 }
-
-// Close copy notification and redirect
-document.getElementById('copiedBtn').addEventListener('click', () => {
-    document.getElementById('copyNotification').classList.remove('active');
-    window.open('https://www.facebook.com/profile.php?id=61586923727508', '_blank');
-});
 
 // Close notification when clicking outside
 document.getElementById('copyNotification').addEventListener('click', (e) => {
