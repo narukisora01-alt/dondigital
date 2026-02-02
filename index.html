@@ -2157,6 +2157,33 @@ button:focus-visible {
     </div>
 </div>
     
+<div class="copy-notification" id="scamWarningModal">
+    <div class="copy-content">
+        <div class="copy-icon" style="background: linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0.1) 100%); border-color: #ef4444;">⚠️</div>
+        <h3 class="copy-title">SCAM WARNING</h3>
+        <div class="copy-message-box" style="text-align: left;">
+BEWARE OF SCAMMERS!
+
+Our OFFICIAL GCash is:
+𝐂𝐀𝐒𝐇𝐆-#𝟎𝟗𝟗𝟑𝟏𝟖𝟏𝟓𝟎𝟐𝟖
+
+If any affiliate asks for:
+- HIGHER prices than listed
+- DIFFERENT payment details
+- Personal information
+
+They are SCAMMERS!
+
+Report them immediately and find a trusted affiliate from our TOP AFFILIATORS list (★ button).
+        </div>
+        <div class="copy-buttons">
+            <button class="copy-btn copy-btn-copied" id="understoodBtn">
+                ✓ I Understand
+            </button>
+        </div>
+    </div>
+</div>
+    
 <!-- Calculator Modal -->
 <div class="modal" id="calculatorModal">
     <div class="modal-content">
@@ -2454,9 +2481,19 @@ async function orderProduct(robux, price, outOfStock) {
         } catch (error) {
             console.error('Failed to get affiliator FB:', error);
         }
+        
+        const scamWarning = document.getElementById('scamWarningModal');
+        const understoodBtn = document.getElementById('understoodBtn');
+        
+        scamWarning.classList.add('active');
+        
+        understoodBtn.onclick = () => {
+            scamWarning.classList.remove('active');
+            showCopyNotification(message, fbLink);
+        };
+    } else {
+        showCopyNotification(message, fbLink);
     }
-    
-    showCopyNotification(message, fbLink);
 }
 
 function showCopyNotification(message, fbLink) {
@@ -2464,9 +2501,7 @@ function showCopyNotification(message, fbLink) {
     const copyMessageBox = document.getElementById('copyMessageBox');
     const copiedBtn = document.getElementById('copiedBtn');
     
-    const warningMessage = `⚠️ IMPORTANT REMINDER ⚠️\n\nOFFICIAL GCASH NUMBER:\n𝐂𝐀𝐒𝐇𝐆-#𝟎𝟗𝟗𝟑𝟏𝟖𝟏𝟓𝟎𝟐𝟖\n\nIf any affiliate asks for HIGHER PRICES or DIFFERENT PAYMENT DETAILS, they are SCAMMERS.\n\nFind another affiliate from our TOP AFFILIATORS list (★ button in sidebar) and report the scammer immediately.\n\n━━━━━━━━━━━━━━━━━━━━\n\n${message}`;
-    
-    copyMessageBox.textContent = warningMessage;
+    copyMessageBox.textContent = message;
     copyNotification.classList.add('active');
     
     copiedBtn.onclick = () => {
@@ -2474,7 +2509,7 @@ function showCopyNotification(message, fbLink) {
         window.open(fbLink, '_blank');
     };
     
-    navigator.clipboard.writeText(warningMessage).catch(err => {
+    navigator.clipboard.writeText(message).catch(err => {
         console.error('Failed to copy:', err);
     });
 }
@@ -2482,6 +2517,12 @@ function showCopyNotification(message, fbLink) {
 document.getElementById('copyNotification').addEventListener('click', (e) => {
     if (e.target.id === 'copyNotification') {
         document.getElementById('copyNotification').classList.remove('active');
+    }
+});
+
+document.getElementById('scamWarningModal').addEventListener('click', (e) => {
+    if (e.target.id === 'scamWarningModal') {
+        document.getElementById('scamWarningModal').classList.remove('active');
     }
 });
 
@@ -2679,7 +2720,6 @@ function displayAffiliators(affiliators) {
     
     affiliatorsList.innerHTML = itemsHTML + paginationHTML;
     
-    // Add click event listeners to affiliator items
     document.querySelectorAll('.affiliator-item').forEach(item => {
         const fbLink = item.dataset.fbLink;
         if (fbLink && fbLink.trim().length > 0) {
