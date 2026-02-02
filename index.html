@@ -2642,35 +2642,20 @@ function displayAffiliators(affiliators) {
         else if (rank === 3) rankClass = 'top-3';
         
         const fbLink = affiliator.facebook_profile || '';
+        const cursorStyle = fbLink ? 'cursor: pointer;' : '';
+        const onclickAttr = fbLink ? `onclick="window.open('${fbLink.replace(/'/g, "\\'")}', '_blank')"` : '';
         
-        // Debug: Log to see if facebook_profile exists
-        console.log(`Affiliator: ${affiliator.username}, FB Link: ${fbLink}`);
-        
-        if (fbLink) {
-            return `
-                <div class="affiliator-item" onclick="window.open('${fbLink}', '_blank')" style="cursor: pointer; animation: fadeInUp 0.4s ease-out backwards; animation-delay: ${pageIndex * 0.05}s;">
-                    <div class="affiliator-rank ${rankClass}">#${rank}</div>
-                    <div class="affiliator-avatar">?</div>
-                    <div class="affiliator-info">
-                        <div class="affiliator-username">${escapeHtml(affiliator.username)}</div>
-                        <div class="affiliator-earnings">Commission earned</div>
-                    </div>
-                    <div class="affiliator-robux">⏣ ${affiliator.robux_earned.toLocaleString()}</div>
+        return `
+            <div class="affiliator-item" ${onclickAttr} style="${cursorStyle} animation: fadeInUp 0.4s ease-out backwards; animation-delay: ${pageIndex * 0.05}s;">
+                <div class="affiliator-rank ${rankClass}">#${rank}</div>
+                <div class="affiliator-avatar">?</div>
+                <div class="affiliator-info">
+                    <div class="affiliator-username">${escapeHtml(affiliator.username)}</div>
+                    <div class="affiliator-earnings">Commission earned</div>
                 </div>
-            `;
-        } else {
-            return `
-                <div class="affiliator-item" style="animation: fadeInUp 0.4s ease-out backwards; animation-delay: ${pageIndex * 0.05}s;">
-                    <div class="affiliator-rank ${rankClass}">#${rank}</div>
-                    <div class="affiliator-avatar">?</div>
-                    <div class="affiliator-info">
-                        <div class="affiliator-username">${escapeHtml(affiliator.username)}</div>
-                        <div class="affiliator-earnings">Commission earned</div>
-                    </div>
-                    <div class="affiliator-robux">⏣ ${affiliator.robux_earned.toLocaleString()}</div>
-                </div>
-            `;
-        }
+                <div class="affiliator-robux">⏣ ${affiliator.robux_earned.toLocaleString()}</div>
+            </div>
+        `;
     }).join('');
     
     const paginationHTML = totalPages > 1 ? `
