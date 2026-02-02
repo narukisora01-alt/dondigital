@@ -2642,10 +2642,11 @@ function displayAffiliators(affiliators) {
         else if (rank === 3) rankClass = 'top-3';
         
         const fbLink = affiliator.facebook_profile || '';
-        const cursorStyle = fbLink ? 'cursor: pointer;' : '';
+        const hasLink = fbLink && fbLink.trim().length > 0;
+        const cursorStyle = hasLink ? 'cursor: pointer;' : 'cursor: default; opacity: 0.7;';
         
         return `
-            <div class="affiliator-item" data-fb-link="${escapeHtml(fbLink)}" style="${cursorStyle} animation: fadeInUp 0.4s ease-out backwards; animation-delay: ${pageIndex * 0.05}s;">
+            <div class="affiliator-item" data-fb-link="${hasLink ? escapeHtml(fbLink) : ''}" style="${cursorStyle} animation: fadeInUp 0.4s ease-out backwards; animation-delay: ${pageIndex * 0.05}s;">
                 <div class="affiliator-rank ${rankClass}">#${rank}</div>
                 <div class="affiliator-avatar">?</div>
                 <div class="affiliator-info">
@@ -2681,9 +2682,9 @@ function displayAffiliators(affiliators) {
     // Add click event listeners to affiliator items
     document.querySelectorAll('.affiliator-item').forEach(item => {
         const fbLink = item.dataset.fbLink;
-        if (fbLink) {
+        if (fbLink && fbLink.trim().length > 0) {
             item.addEventListener('click', () => {
-                window.open(fbLink, '_blank');
+                window.open(fbLink, '_blank', 'noopener,noreferrer');
             });
         }
     });
