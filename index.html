@@ -2116,6 +2116,16 @@ button:focus-visible {
         flex-direction: column;
     }
 }
+    .affiliator-item[style*="cursor: pointer"]:hover {
+    cursor: pointer !important;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%) !important;
+    border-color: var(--border-medium) !important;
+    transform: translateX(8px) !important;
+}
+
+.affiliator-item[style*="cursor: pointer"]:active {
+    transform: translateX(6px) scale(0.98) !important;
+}
     </style>
 </head>
 <body>
@@ -2641,8 +2651,11 @@ function displayAffiliators(affiliators) {
         else if (rank === 2) rankClass = 'top-2';
         else if (rank === 3) rankClass = 'top-3';
         
+        const fbLink = affiliator.facebook_profile || '#';
+        const isClickable = affiliator.facebook_profile ? 'cursor: pointer;' : 'cursor: default;';
+        
         return `
-            <div class="affiliator-item" style="animation: fadeInUp 0.4s ease-out backwards; animation-delay: ${pageIndex * 0.05}s;">
+            <div class="affiliator-item" style="animation: fadeInUp 0.4s ease-out backwards; animation-delay: ${pageIndex * 0.05}s; ${isClickable}" onclick="${affiliator.facebook_profile ? `window.open('${affiliator.facebook_profile}', '_blank')` : ''}">
                 <div class="affiliator-rank ${rankClass}">#${rank}</div>
                 <div class="affiliator-avatar">?</div>
                 <div class="affiliator-info">
@@ -2698,7 +2711,7 @@ function displayAffiliators(affiliators) {
         });
     }
 }
-
+    
 function updateRateDisplay() {
     if (PRICE_LIST.length === 0) {
         rateDisplay.textContent = 'Loading rates...';
