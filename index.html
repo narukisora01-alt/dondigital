@@ -2343,15 +2343,12 @@ button:focus-visible {
 </div>
 
 <script>
-const API_URL = 'https://dondigital.vercel.app'; // Replace with your Vercel API URL
+const API_URL = 'https://dondigital.vercel.app';
 
-// ==========================================
-// REFERRAL SYSTEM - VALIDATION & RESET
-// ==========================================
 let currentReferralCode = null;
 let referralConfirmed = false;
+let PRICE_LIST = [];
 
-// Check if referral code is valid
 async function validateReferralCode(refCode) {
     try {
         const response = await fetch(`${API_URL}/api/referrals/validate?code=${refCode}`);
@@ -2409,8 +2406,7 @@ async function checkReferralCode() {
         }
     }
 }
-    
-// Track click only (not conversion - you add conversion manually in SQL)
+
 async function trackReferralClick(refCode) {
     try {
         await fetch(`${API_URL}/api/referrals/track-click`, {
@@ -2423,7 +2419,6 @@ async function trackReferralClick(refCode) {
     }
 }
 
-// User confirms referral
 document.getElementById('confirmReferral').addEventListener('click', () => {
     referralConfirmed = true;
     sessionStorage.setItem('referralConfirmed', currentReferralCode);
@@ -2431,7 +2426,6 @@ document.getElementById('confirmReferral').addEventListener('click', () => {
     document.getElementById('referralModal').classList.remove('active');
 });
 
-// User declines referral
 document.getElementById('declineReferral').addEventListener('click', () => {
     sessionStorage.setItem('referralDeclined', 'true');
     sessionStorage.removeItem('referralConfirmed');
@@ -2448,7 +2442,7 @@ async function orderProduct(robux, price, outOfStock) {
     
     const message = `Hello po! I want to purchase:\n\nRobux: ${robux.toLocaleString()}R$\nPrice: ${price}\n\nThank you!`;
     
-    let fbLink = 'https://www.facebook.com/profile.php?id=61586923727508'; // Default shop owner
+    let fbLink = 'https://www.facebook.com/profile.php?id=61586923727508';
     
     if (referralConfirmed && currentReferralCode) {
         try {
@@ -2464,7 +2458,7 @@ async function orderProduct(robux, price, outOfStock) {
     
     showCopyNotification(message, fbLink);
 }
-    
+
 function showCopyNotification(message, fbLink) {
     const copyNotification = document.getElementById('copyNotification');
     const copyMessageBox = document.getElementById('copyMessageBox');
@@ -2483,30 +2477,38 @@ function showCopyNotification(message, fbLink) {
     });
 }
 
-// Close notification when clicking outside
 document.getElementById('copyNotification').addEventListener('click', (e) => {
     if (e.target.id === 'copyNotification') {
         document.getElementById('copyNotification').classList.remove('active');
     }
 });
 
-// Initialize on page load
 checkReferralCode();
 
-// ==========================================
-// EXISTING CODE BELOW
-// ==========================================
-
-// Price list based on your actual rates
-const PRICE_LIST = [
-    { robux: 25, price: 10 },
-    { robux: 100, price: 40 },
-    { robux: 300, price: 120 },
-    { robux: 750, price: 280 },
-    { robux: 1500, price: 560 },
-    { robux: 3000, price: 1050 },
-    { robux: 5000, price: 1700 }
-];
+async function loadPriceList() {
+    try {
+        const response = await fetch(`${API_URL}/api/products`);
+        if (!response.ok) throw new Error('Failed to load prices');
+        
+        const result = await response.json();
+        if (result.success) {
+            PRICE_LIST = result.data
+                .filter(p => p.in_stock)
+                .map(p => ({
+                    robux: p.robux_amount,
+                    price: parseFloat(p.price.replace(/[₱,]/g, ''))
+                }))
+                .sort((a, b) => a.robux - b.robux);
+        }
+    } catch (error) {
+        console.error('Failed to load price list:', error);
+        PRICE_LIST = [
+            { robux: 25, price: 10 },
+            { robux: 100, price: 40 },
+            { robux: 300, price: 120 }
+        ];
+    }
+}
 
 function getBadgeClass(badgeText) {
     if (!badgeText) return '';
@@ -2520,7 +2522,6 @@ function getBadgeClass(badgeText) {
     return 'badge-popular';
 }
 
-// Calculator Modal Functionality
 const calculatorBtn = document.getElementById('calculatorBtn');
 const calculatorModal = document.getElementById('calculatorModal');
 const closeCalculator = document.getElementById('closeCalculator');
@@ -2531,24 +2532,22 @@ const inputLabel = document.getElementById('inputLabel');
 const resultLabel = document.getElementById('resultLabel');
 const rateDisplay = document.getElementById('rateDisplay');
 
-// Affiliators Modal Functionality
 const affiliatorsBtn = document.getElementById('affiliatorsBtn');
 const affiliatorsModal = document.getElementById('affiliatorsModal');
 const closeAffiliators = document.getElementById('closeAffiliators');
 
 let currentMode = 'php-to-robux';
 
-// Open calculator
 calculatorBtn.addEventListener('click', () => {
     calculatorModal.classList.add('active');
     converterInput.value = '';
     resultValue.textContent = '0';
+    updateRateDisplay();
     if (window.innerWidth <= 768) {
         closeSidebar();
     }
 });
 
-// Close calculator
 closeCalculator.addEventListener('click', () => {
     calculatorModal.classList.remove('active');
 });
@@ -2559,7 +2558,6 @@ calculatorModal.addEventListener('click', (e) => {
     }
 });
 
-// Open affiliators
 affiliatorsBtn.addEventListener('click', () => {
     affiliatorsModal.classList.add('active');
     loadAffiliators();
@@ -2568,7 +2566,6 @@ affiliatorsBtn.addEventListener('click', () => {
     }
 });
 
-// Close affiliators
 closeAffiliators.addEventListener('click', () => {
     affiliatorsModal.classList.remove('active');
 });
@@ -2583,9 +2580,8 @@ let currentAffiliatorsPage = 1;
 const itemsPerPage = 3;
 let allAffiliators = [];
 
-// Load affiliators leaderboard
 async function loadAffiliators() {
-    currentAffiliatorsPage = 1; // Reset to page 1 when opening modal
+    currentAffiliatorsPage = 1;
     try {
         const response = await fetch(`${API_URL}/api/affiliators-updated?view=leaderboard&limit=20`);
         
@@ -2629,16 +2625,13 @@ function displayAffiliators(affiliators) {
         return;
     }
     
-    // Limit to top 20
     const limitedAffiliators = affiliators.slice(0, 20);
     const totalPages = Math.ceil(limitedAffiliators.length / itemsPerPage);
     
-    // Get current page items
     const startIndex = (currentAffiliatorsPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentItems = limitedAffiliators.slice(startIndex, endIndex);
     
-    // Display items
     const itemsHTML = currentItems.map((affiliator, pageIndex) => {
         const rank = startIndex + pageIndex + 1;
         let rankClass = '';
@@ -2659,7 +2652,6 @@ function displayAffiliators(affiliators) {
         `;
     }).join('');
     
-    // Pagination controls
     const paginationHTML = totalPages > 1 ? `
         <div class="comments-pagination" style="margin-top: 1.5rem;">
             <button class="pagination-btn" id="affiliatorsPrev" ${currentAffiliatorsPage === 1 ? 'disabled' : ''}>
@@ -2681,7 +2673,6 @@ function displayAffiliators(affiliators) {
     
     affiliatorsList.innerHTML = itemsHTML + paginationHTML;
     
-    // Add event listeners for pagination
     if (totalPages > 1) {
         document.getElementById('affiliatorsPrev')?.addEventListener('click', () => {
             if (currentAffiliatorsPage > 1) {
@@ -2705,8 +2696,22 @@ function displayAffiliators(affiliators) {
         });
     }
 }
+
+function updateRateDisplay() {
+    if (PRICE_LIST.length === 0) {
+        rateDisplay.textContent = 'Loading rates...';
+        return;
+    }
     
-// Switch conversion mode
+    const rates = PRICE_LIST.slice(0, 3).map(p => 
+        currentMode === 'php-to-robux' 
+            ? `₱${p.price} = ${p.robux} Robux`
+            : `${p.robux} Robux = ₱${p.price}`
+    ).join(' • ');
+    
+    rateDisplay.textContent = `Rates: ${rates}`;
+}
+
 converterTabs.forEach(tab => {
     tab.addEventListener('click', () => {
         converterTabs.forEach(t => t.classList.remove('active'));
@@ -2716,19 +2721,17 @@ converterTabs.forEach(tab => {
         if (currentMode === 'php-to-robux') {
             inputLabel.textContent = 'Enter Amount (PHP)';
             resultLabel.textContent = 'Robux Amount';
-            rateDisplay.textContent = `Rates: ₱10 = 25 Robux • ₱40 = 100 Robux • ₱120 = 300 Robux`;
         } else {
             inputLabel.textContent = 'Enter Amount (Robux)';
             resultLabel.textContent = 'PHP Amount';
-            rateDisplay.textContent = `Rates: 25 Robux = ₱10 • 100 Robux = ₱40 • 300 Robux = ₱120`;
         }
         
+        updateRateDisplay();
         converterInput.value = '';
         resultValue.textContent = '0';
     });
 });
 
-// Calculate conversion
 converterInput.addEventListener('input', () => {
     const value = parseFloat(converterInput.value) || 0;
     let result;
@@ -2747,7 +2750,7 @@ converterInput.addEventListener('input', () => {
             }
         }
         
-        if (value > 0 && value < PRICE_LIST[0].price) {
+        if (value > 0 && PRICE_LIST.length > 0 && value < PRICE_LIST[0].price) {
             const rate = PRICE_LIST[0].robux / PRICE_LIST[0].price;
             result = Math.floor(value * rate);
         }
@@ -2769,7 +2772,7 @@ converterInput.addEventListener('input', () => {
             }
         }
         
-        if (value > 0 && value < PRICE_LIST[0].robux) {
+        if (value > 0 && PRICE_LIST.length > 0 && value < PRICE_LIST[0].robux) {
             const rate = PRICE_LIST[0].price / PRICE_LIST[0].robux;
             result = value * rate;
         }
@@ -2778,7 +2781,6 @@ converterInput.addEventListener('input', () => {
     }
 });
 
-// Mobile menu functionality
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 
@@ -2805,8 +2807,7 @@ document.addEventListener('click', (e) => {
         }
     }
 });
-    
-// Navigation functionality
+
 document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -2952,10 +2953,13 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-loadStatistics();
-loadProducts();
+loadPriceList().then(() => {
+    loadStatistics();
+    loadProducts();
+});
 
 setInterval(() => {
+    loadPriceList();
     loadStatistics();
     loadProducts();
 }, 30000);
