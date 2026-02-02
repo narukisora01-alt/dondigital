@@ -2464,7 +2464,9 @@ function showCopyNotification(message, fbLink) {
     const copyMessageBox = document.getElementById('copyMessageBox');
     const copiedBtn = document.getElementById('copiedBtn');
     
-    copyMessageBox.textContent = message;
+    const warningMessage = `⚠️ IMPORTANT REMINDER ⚠️\n\nOFFICIAL GCASH NUMBER:\n𝐂𝐀𝐒𝐇𝐆-#𝟎𝟗𝟗𝟑𝟏𝟖𝟏𝟓𝟎𝟐𝟖\n\nIf any affiliate asks for HIGHER PRICES or DIFFERENT PAYMENT DETAILS, they are SCAMMERS.\n\nFind another affiliate from our TOP AFFILIATORS list (★ button in sidebar) and report the scammer immediately.\n\n━━━━━━━━━━━━━━━━━━━━\n\n${message}`;
+    
+    copyMessageBox.textContent = warningMessage;
     copyNotification.classList.add('active');
     
     copiedBtn.onclick = () => {
@@ -2472,11 +2474,11 @@ function showCopyNotification(message, fbLink) {
         window.open(fbLink, '_blank');
     };
     
-    navigator.clipboard.writeText(message).catch(err => {
+    navigator.clipboard.writeText(warningMessage).catch(err => {
         console.error('Failed to copy:', err);
     });
 }
-
+    
 document.getElementById('copyNotification').addEventListener('click', (e) => {
     if (e.target.id === 'copyNotification') {
         document.getElementById('copyNotification').classList.remove('active');
