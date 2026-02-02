@@ -12,13 +12,12 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      // Check if requesting leaderboard view (new referral system)
       const useView = req.query.view === 'leaderboard';
       
       if (useView) {
-        // Get top affiliators from the referral system view
         const limit = parseInt(req.query.limit) || 20;
         
+        // Get data from view and join with affiliators table to get facebook_profile
         const { data: affiliators, error } = await supabase
           .from('vw_top_affiliators')
           .select('*')
@@ -26,7 +25,21 @@ export default async function handler(req, res) {
         
         if (error) throw error;
         
-        // Format response to match expected structure
+        // Get facebook profiles separately
+        const { data: affiliatorsData, error: affiliatorsError } = await supabase
+          .from('affiliators')
+          .select('referral_code, facebook_profile')
+          .in('referral_code', (affiliators || []).map(a => a.referral_code));
+        
+        if (affiliatorsError) throw affiliatorsError;
+        
+        // Create a map for quick lookup
+        const fbMap = {};
+        (affiliatorsData || []).forEach(aff => {
+          fbMap[aff.referral_code] = aff.facebook_profile;
+        });
+        
+        // Format response with facebook_profile included
         const formattedAffiliators = (affiliators || []).map(aff => ({
           username: aff.username,
           referral_code: aff.referral_code,
@@ -34,6 +47,7 @@ export default async function handler(req, res) {
           total_clicks: aff.total_clicks,
           total_conversions: aff.total_conversions,
           conversion_rate: parseFloat(aff.conversion_rate || 0),
+          facebook_profile: fbMap[aff.referral_code] || null,
           created_at: aff.created_at
         }));
         
@@ -42,7 +56,7 @@ export default async function handler(req, res) {
           data: formattedAffiliators
         });
       } else {
-        // Original: Get top 20 affiliators ordered by robux earned (highest to lowest)
+        // Original: Get top 20 affiliators ordered by robux earned
         const { data: affiliators, error } = await supabase
           .from('affiliators')
           .select('*')
